@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/filter.png</file>
+        <file>icons/game.png</file>
+        <file>icons/misc.png</file>
+        <file>icons/planet.png</file>
+        <file>icons/refresh.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/table.png</file>
+        <file>icons/connect.png</file>
+        <file>icons/disconnect.png</file>
+        <file>icons/font.png</file>
+        <file>icons/channel.png</file>
+        <file>icons/server.png</file>
+        <file>icons/general.png</file>
+        <file>icons/appicon.png</file>
+    </qresource>
+</RCC>

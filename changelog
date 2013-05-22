@@ -1,0 +1,17 @@
+Version 0.0.1
+  * Planet Scanner:
+    * Works with several planets
+    * Filters by gametype and fulness of players in a game
+    * Auto refreshes information
+    * Allows joining a game for playing and spectating
+    * Changes NFK's planet address to one of joined game for the game session
+  * Chat:
+    * Auto identifies with NickServ
+    * Auto joins selected channels
+    * Waits before autojoining (impornant for cloak users)
+    * Has custom fonts for chat list, chat window and user list
+    * Quassel-like coloring
+    * Addition of servers with ability to specify text encoding
+  * Game Preferences:
+    * Ability to specify arbitrary in-game nick
+    * Ability to specify all of the standard network NFK gametypes plus trix

@@ -1,0 +1,3 @@
+*.aps
+resources/*.aps
+projectfiles/build*/
