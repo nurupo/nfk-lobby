@@ -170,6 +170,9 @@ ChatDock::ChatDock(QWidget* parent) :
     connect(ircClient, &IrcClient::nickChange,         nickLabel,  &QLabel::setText);
     connect(ircClient, &IrcClient::connected,          nickLabel,  &QLabel::show);
     connect(ircClient, &IrcClient::disconnected,       nickLabel,  &QLabel::hide);
+    if (ChatSettingsGeneralPage::getAutoConnect()) {
+        connectToServer();
+    }
 }
 
 ChatDock::~ChatDock()
@@ -527,9 +530,6 @@ void ChatDock::applySettings()
     userTree->setFont(ChatSettingsFontPage::getUserListFont());
     ircClient->setQuitMessage(ChatSettingsGeneralPage::getQuitMessage());
     autojoinTimer->setInterval(ChatSettingsChannelPage::getTimeToWaitBeforeAutojoining() * 1000);
-    if (ChatSettingsGeneralPage::getAutoConnect()) {
-        connectToServer();
-    }
 }
 
 void ChatDock::closeChannelAction()
