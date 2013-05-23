@@ -1,3 +1,11 @@
+Version 0.1.0
+  * Main Window:
+    * Now restores its and its docks' size and position from previous run
+  * Chat:
+    * Added autoconnect option
+  * Game Preferences:
+    * Made column Name resizable
+
 Version 0.0.1
   * Planet Scanner:
     * Works with several planets
