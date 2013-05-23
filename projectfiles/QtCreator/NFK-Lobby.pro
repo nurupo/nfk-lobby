@@ -10,7 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = NFK-Lobby
 TEMPLATE = app
 
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT static
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+CONFIG(release, debug|release):CONFIG += static
 
 RC_FILE = ../../resources/appicon.rc
 
