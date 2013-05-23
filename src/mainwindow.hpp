@@ -33,12 +33,16 @@ public:
     static QString author;
     static QString years;
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void tabsTopActionTriggered();
     void tabsLeftActionTriggered();
     void tabsRightActionTriggered();
     void tabsBottomActionTriggered();
     void aboutAppActionTriggered();
+    void applySettings();
 };
 
 #endif // MAINWINDOW_HPP

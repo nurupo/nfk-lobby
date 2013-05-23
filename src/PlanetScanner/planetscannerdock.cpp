@@ -33,7 +33,9 @@
 
 PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
 {
-    setWindowTitle("Planet Scanner");
+    const QString dockName = "Planet Scanner";
+    setObjectName(dockName);
+    setWindowTitle(dockName);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
 
     QMainWindow* window = new QMainWindow(0);

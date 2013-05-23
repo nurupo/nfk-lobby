@@ -44,7 +44,9 @@ ChatDock::ChatDock(QWidget* parent) :
     ChatSettingsDialog::load();
     connect(&ChatSettingsDialog::settingsNotifier, &BasicSettingsDialogNotifier::updated, this, &ChatDock::applySettings);
 
-    setWindowTitle("Chat");
+    const QString dockName = "Chat";
+    setObjectName(dockName);
+    setWindowTitle(dockName);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
 
     QMainWindow* window = new QMainWindow(0);

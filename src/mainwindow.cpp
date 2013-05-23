@@ -31,7 +31,7 @@
 #include <QVBoxLayout>
 
 QString MainWindow::name = "NFK Lobby";
-QString MainWindow::version = "0.0.1";
+QString MainWindow::version = "0.1.0";
 QString MainWindow::buildDate = __DATE__;
 QString MainWindow::author = "Maxim Biro";
 QString MainWindow::years = "2013";
@@ -79,10 +79,21 @@ MainWindow::MainWindow(QWidget *parent)
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(aboutAppAction, &QAction::triggered, this, &MainWindow::aboutAppActionTriggered);
     aboutMenu->addActions(QList<QAction*>() << aboutQtAction << aboutAppAction);
+    applySettings();
 }
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings("settings.ini", QSettings::IniFormat);
+    settings.beginGroup("MainWindow");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("state", saveState());
+    settings.endGroup();
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::tabsTopActionTriggered()
@@ -109,4 +120,13 @@ void MainWindow::aboutAppActionTriggered()
 {
     AboutDialog dialog(this);
     dialog.exec();
+}
+
+void MainWindow::applySettings()
+{
+    QSettings settings("settings.ini", QSettings::IniFormat);
+    settings.beginGroup("MainWindow");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("state").toByteArray());
+    settings.endGroup();
 }

@@ -37,7 +37,9 @@ GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
     GamePreferencesSettingsDialog::load();
     connect(&GamePreferencesSettingsDialog::settingsNotifier, &BasicSettingsDialogNotifier::updated, this, &GamePreferencesDock::applySettings);
 
-    setWindowTitle("Game Preferences");
+    const QString dockName = "Game Preferences";
+    setObjectName(dockName);
+    setWindowTitle(dockName);
     setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
 
     QMainWindow* window = new QMainWindow(0);
