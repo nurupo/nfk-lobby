@@ -11,6 +11,7 @@ TARGET = NFK-Lobby
 TEMPLATE = app
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+CONFIG += static
 
 RC_FILE = ../../resources/appicon.rc
 
