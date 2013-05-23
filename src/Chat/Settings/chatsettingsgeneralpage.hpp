@@ -20,6 +20,7 @@
 #include "../../Settings/abstractsettingspage.hpp"
 
 #include <QAbstractItemModel>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLineEdit>
@@ -31,6 +32,7 @@ public:
     explicit ChatSettingsGeneralPage(QStackedWidget *parent, const QString &pageName, const QString &iconPath);
 
     static int getServerId()                        {return serverId;}
+    static bool getAutoConnect()                    {return autoConnect;}
     static QString getNick()                        {return nick;}
     static QString getUsername()                    {return username;}
     static QString getQuitMessage()                 {return quitMessage;}
@@ -48,6 +50,7 @@ private:
     QGroupBox* buildAutoIdentifyGroup();
 
     QComboBox* serverSelectionComboBox;
+    QCheckBox* autoConnectCheckBox;
     QLineEdit* nickEdit;
     QLineEdit* usernameEdit;
     QLineEdit* quitMessageEdit;
@@ -56,6 +59,7 @@ private:
     QLineEdit* passwordEdit;
 
     static int serverId;
+    static bool autoConnect;
     static QString nick;
     static QString username;
     static QString quitMessage;

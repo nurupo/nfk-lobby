@@ -22,6 +22,7 @@
 #include <QVBoxLayout>
 
 int ChatSettingsGeneralPage::serverId;
+bool ChatSettingsGeneralPage::autoConnect;
 QString ChatSettingsGeneralPage::nick;
 QString ChatSettingsGeneralPage::username;
 QString ChatSettingsGeneralPage::quitMessage;
@@ -54,6 +55,8 @@ QGroupBox* ChatSettingsGeneralPage::buildGeneralGroup()
     serverSelectionComboBox = new QComboBox(group);
     serverSelectionComboBox->setModel(ChatSettingsServerPage::getServerListModel());
 
+    autoConnectCheckBox = new QCheckBox("Auto connect on the startup", group);
+
     QLabel* nickLabel = new QLabel("Nick:", group);
     nickEdit = new QLineEdit(group);
 
@@ -65,12 +68,13 @@ QGroupBox* ChatSettingsGeneralPage::buildGeneralGroup()
 
     groupLayout->addWidget(serverSelectionLabel,    0, 0, 1, 1);
     groupLayout->addWidget(serverSelectionComboBox, 0, 1, 1, 1);
-    groupLayout->addWidget(nickLabel,               1, 0, 1, 1);
-    groupLayout->addWidget(nickEdit,                1, 1, 1, 1);
-    groupLayout->addWidget(usernameLabel,           2, 0, 1, 1);
-    groupLayout->addWidget(usernameEdit,            2, 1, 1, 1);
-    groupLayout->addWidget(quitMessageLabel,        3, 0, 1, 1);
-    groupLayout->addWidget(quitMessageEdit,         3, 1, 1, 1);
+    groupLayout->addWidget(autoConnectCheckBox,     1, 1, 1, 1);
+    groupLayout->addWidget(nickLabel,               2, 0, 1, 1);
+    groupLayout->addWidget(nickEdit,                2, 1, 1, 1);
+    groupLayout->addWidget(usernameLabel,           3, 0, 1, 1);
+    groupLayout->addWidget(usernameEdit,            3, 1, 1, 1);
+    groupLayout->addWidget(quitMessageLabel,        4, 0, 1, 1);
+    groupLayout->addWidget(quitMessageEdit,         4, 1, 1, 1);
 
     return group;
 }
@@ -95,6 +99,7 @@ QGroupBox* ChatSettingsGeneralPage::buildAutoIdentifyGroup()
 void ChatSettingsGeneralPage::setGui()
 {
     serverSelectionComboBox->setCurrentIndex(serverId);
+    autoConnectCheckBox->setChecked(autoConnect);
     nickEdit->setText(nick);
     usernameEdit->setText(username);
     quitMessageEdit->setText(quitMessage);
@@ -106,6 +111,7 @@ void ChatSettingsGeneralPage::setGui()
 void ChatSettingsGeneralPage::apply()
 {
     serverId = serverSelectionComboBox->currentIndex();
+    autoConnect = autoConnectCheckBox->isChecked();
     nick = nickEdit->text();
     username = usernameEdit->text();
     quitMessage = quitMessageEdit->text();
@@ -118,6 +124,7 @@ void ChatSettingsGeneralPage::load(QSettings& settings)
 {
     serverId = settings.value("serverId", 0).toInt();
     srand(QDateTime::currentDateTime().toTime_t());
+    autoConnect = settings.value("autoConnect", false).toBool();
     nick = settings.value("nick", QString("nfkl_user%1").arg(rand() % 10000)).toString();
     username = settings.value("username", "nfkl_user").toString();
     quitMessage = settings.value("quitMessage").toString();
@@ -128,6 +135,7 @@ void ChatSettingsGeneralPage::load(QSettings& settings)
 void ChatSettingsGeneralPage::save(QSettings& settings)
 {
     settings.setValue("serverId", serverId);
+    settings.setValue("autoConnect", autoConnect);
     settings.setValue("nick", nick);
     settings.setValue("username", username);
     settings.setValue("quitMessage", quitMessage);

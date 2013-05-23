@@ -525,6 +525,9 @@ void ChatDock::applySettings()
     userTree->setFont(ChatSettingsFontPage::getUserListFont());
     ircClient->setQuitMessage(ChatSettingsGeneralPage::getQuitMessage());
     autojoinTimer->setInterval(ChatSettingsChannelPage::getTimeToWaitBeforeAutojoining() * 1000);
+    if (ChatSettingsGeneralPage::getAutoConnect()) {
+        connectToServer();
+    }
 }
 
 void ChatDock::closeChannelAction()
