@@ -72,9 +72,7 @@ GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
         CheckBoxDelegate* checkBoxDelegate = new CheckBoxDelegate(preferencesView);
         preferencesView->setItemDelegateForColumn(i, checkBoxDelegate);
     }
-
-    preferencesView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    preferencesView->horizontalHeader()->setSectionsMovable(true);
+    preferencesView->setColumnWidth(0, 150);
 
     ircClient = new IrcClient();
     ircClient->setVersion(QString("%1 %2 by %3 build date %4").arg(MainWindow::name).arg(MainWindow::version).arg(MainWindow::author).arg(MainWindow::buildDate));
