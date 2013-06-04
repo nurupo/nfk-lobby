@@ -29,8 +29,7 @@ class Channel : public QObject
 public:
     explicit Channel(const QString& channelName);
     ~Channel();
-    //uncomment to make vc2010 happy
-    //Channel(const Channel &channel);
+    Channel(const Channel &channel);
 
     const QDateTime& getTopicDate() const {return topicDate;}
     const QString& getName() const {return name;}

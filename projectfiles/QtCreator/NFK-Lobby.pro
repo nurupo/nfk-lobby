@@ -13,6 +13,8 @@ TEMPLATE = app
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 CONFIG(release, debug|release):CONFIG += static
 
+QMAKE_CXXFLAGS += -std=c++11
+
 RC_FILE = ../../resources/appicon.rc
 
 INCLUDEPATH += ../../src/
@@ -54,7 +56,9 @@ SOURCES += \
     ../../src/GamePreferences/gametype.cpp \
     ../../src/GamePreferences/Settings/gamepreferencestablepage.cpp \
     ../../src/aboutdialog.cpp \
-    ../../src/licensedialog.cpp
+    ../../src/licensedialog.cpp \
+    ../../src/PlanetScanner/planettreemodel.cpp \
+    ../../src/PlanetScanner/planettreesortfilterproxymodel.cpp
 
 HEADERS  += \
     ../../src/mainwindow.hpp \
@@ -94,7 +98,9 @@ HEADERS  += \
     ../../src/GamePreferences/gametype.hpp \
     ../../src/GamePreferences/Settings/gamepreferencestablepage.hpp \
     ../../src/aboutdialog.hpp \
-    ../../src/licensedialog.hpp
+    ../../src/licensedialog.hpp \
+    ../../src/PlanetScanner/planettreemodel.hpp \
+    ../../src/PlanetScanner/planettreesortfilterproxymodel.hpp
 
 RESOURCES += \
     ../../resources/icons.qrc \

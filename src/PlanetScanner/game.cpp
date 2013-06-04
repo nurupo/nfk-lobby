@@ -16,6 +16,22 @@
 
 #include "game.hpp"
 
+//FIXME: use initializer-list that will be introduced in Qt 5.1.0 https://bugreports.qt-project.org/browse/QTBUG-31094
+//QHash<int, QString> Game::gameNames {{0, "DM"}, {2, "TDM"}, {3, "CTF"}, {4, "RAIL"}, {6, "PRAC"}, {7, "DOM"}};
+QHash<int, QString> Game::gameNames = Game::initializeGameNames();
+
+QHash<int, QString> Game::initializeGameNames()
+{
+    QHash<int, QString> hash;
+    hash[0] = "DM";
+    hash[2] = "TDM";
+    hash[3] = "CTF";
+    hash[4] = "RAIL";
+    hash[6] = "PRAC";
+    hash[7] = "DOM";
+    return hash;
+}
+
 Game::Game(const QByteArray &serverInfo)
 {
     if (serverInfo.size() < 2 || serverInfo.at(1) != Game::Identifier) {
@@ -78,15 +94,23 @@ Game::GameType Game::parseGameType(const QByteArray &bytes)
 QString Game::getNameForGametype(const enum Game::GameType type)
 {
     /*https://bitbucket.org/coolant/nfk-planet-scanner/src/1eeb34f604b2a2242680113eada427b26803f1f8/main.pas?at=default#cl-610*/
-    switch (type) {
-        case Game::DM:      return "DM";    break;
-        case Game::TDM:     return "TDM";   break;
-        case Game::CTF:     return "CTF";   break;
-        case Game::RAIL:    return "RAIL";  break;
-        case Game::PRAC:    return "PRAC";  break;
-        case Game::DOM:     return "DOM";   break;
-        default:            return "UNK";
+    if (gameNames.contains(type)) {
+        return gameNames[type];
+    } else {
+        return "UNK";
     }
+}
+
+Game::GameType Game::getGametypeForName(const QString &gameType)
+{
+    QHashIterator<int, QString> it(gameNames);
+    while (it.hasNext()) {
+        it.next();
+        if (it.value() == gameType) {
+            return static_cast<GameType>(it.key());
+        }
+    }
+    return Game::UNK;
 }
 
 QString Game::getCleanedHostname() const

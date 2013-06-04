@@ -34,8 +34,8 @@ public:
     int getPort()                       const { return port; }
     bool isValid()                      const { return valid; }
     QString getCleanedHostname() const;
-    static QString getNameForGametype(const GameType gameType);
-    static enum GameType parseGameType(const QByteArray &bytes);
+    static QString getNameForGametype(GameType gameType);
+    static GameType getGametypeForName(const QString &gameType);
 
 private:
     QString hostname;
@@ -47,9 +47,13 @@ private:
     int port;
     bool valid;
 
+    static QHash<int, QString> gameNames;
+    static QHash<int, QString> initializeGameNames();
+
     static const char Identifier = 'L';
     static const char FieldDelimeter = '\x0d';
 
+    static enum GameType parseGameType(const QByteArray &bytes);
 };
 
 #endif // SERVER_HPP

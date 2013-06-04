@@ -51,28 +51,31 @@ PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
     QAction* settingsAction = toolbar->addAction(QIcon(":/icons/settings.png"), "Settings");
     connect(settingsAction, SIGNAL(triggered()), this, SLOT(showSettingsDialog()));
 
-    planetsTree = new QTreeWidget(window);
-    planetsTree->setMinimumHeight(10);
-    planetsTree->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    planetsTree->setColumnCount(5);
-    planetsTree->setHeaderLabels(QStringList() << "Hostname" << "Map" << "Gametype" << "Players" << "Address");
-    planetsTree->setSortingEnabled(true);
-    planetsTree->sortItems(0, Qt::AscendingOrder);
-    planetsTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(planetsTree, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    planetTreeView = new QTreeView(window);
+    planetTreeView->setMinimumHeight(10);
+    planetTreeModel = new PlanetTreeModel(planetTreeView);
+    planetTreeProxyModel = new PlanetTreeSortFilterProxyModel(planetTreeModel);
+    planetTreeProxyModel->setSourceModel(planetTreeModel);
+    planetTreeView->setModel(planetTreeProxyModel);
+    planetTreeModel->setHorizontalHeaderLabels(QStringList() << "Hostname" << "Map" << "Gametype" << "Players" << "Address");
+    planetTreeView->setSortingEnabled(true);
+    planetTreeView->sortByColumn(0, Qt::AscendingOrder);
+    planetTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    planetTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
+    connect(planetTreeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    QAction* connectAction = new QAction("Connect", planetsTree);
-    QAction* connectAsSpectatorAction = new QAction("Connect as spectator", planetsTree);
-    QAction* copyAction = new QAction("Copy", planetsTree);
+    QAction* connectAction = new QAction("Connect", planetTreeView);
+    QAction* connectAsSpectatorAction = new QAction("Connect as spectator", planetTreeView);
+    QAction* copyAction = new QAction("Copy", planetTreeView);
     connect(connectAction, SIGNAL(triggered()), this, SLOT(connectSelected()));
     connect(connectAsSpectatorAction, SIGNAL(triggered()), this, SLOT(connectAsSpectatorSelected()));
     connect(copyAction, SIGNAL(triggered()), this, SLOT(copySelected()));
-    gameContextMenu = new QMenu(planetsTree);
-    planetContextMenu = new QMenu(planetsTree);
+    gameContextMenu = new QMenu(planetTreeView);
+    planetContextMenu = new QMenu(planetTreeView);
     gameContextMenu->addActions(QList<QAction*>() << connectAction << connectAsSpectatorAction << copyAction);
     planetContextMenu->addActions(QList<QAction*>() << copyAction);
 
-    window->setCentralWidget(planetsTree);
+    window->setCentralWidget(planetTreeView);
     window->setParent(this);
     setWidget(window);
 
@@ -81,18 +84,6 @@ PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
     autoRefreshTimer = new QTimer(window);
     connect(autoRefreshTimer, SIGNAL(timeout()), this, SLOT(refreshPlanets()));
 
-    /*for (int i = 0; i < 8; i ++)
-    {
-        gameTypeFilter[i] = 0;
-    }
-    hideOnFullFilter = 0;
-    hideOnEmptyFilter = 0;
-    resizeOnRefreshDisabled = 0;
-    gamePath = "";
-    gameCommandlineArguments = "";
-    addPlanet(new Planet("nfkplanet.pro2d.ru", 10003));
-    addPlanet(new Planet("planet.needforkill.com", 10003));
-    */
     contextMenuShown = false;
     resizeOnRefreshDisabled = false;
     load();
@@ -105,12 +96,14 @@ PlanetScannerDock::~PlanetScannerDock()
     }
 }
 
-QTreeWidgetItem* PlanetScannerDock::getPlanetTreeWidgetItem(const Planet &planet)
+QStandardItem* PlanetScannerDock::getPlanetTreeWidgetItem(const Planet &planet)
 {
-    QString searchingText = QString("%1:%2").arg(planet.getAddress()).arg(planet.getPort());
-    for (int i = 0; i < planetsTree->topLevelItemCount(); i ++) {
-        if (!planetsTree->topLevelItem(i)->text(0).compare(searchingText, Qt::CaseInsensitive)) {
-            return planetsTree->topLevelItem(i);
+    const QString searchingText = QString("%1:%2").arg(planet.getAddress()).arg(planet.getPort());
+    QList<QStandardItem*> items = planetTreeModel->findItems(searchingText, Qt::MatchExactly, 0);
+    // we assume that there are no duplicates
+    for (QStandardItem* item : items) {
+        if (item->parent() == 0) {
+            return item;
         }
     }
     return 0;
@@ -128,38 +121,35 @@ void PlanetScannerDock::refreshPlanets()
 
 void PlanetScannerDock::addGame(const Planet &planet, const QList<Game> &games)
 {
-    QList<QTreeWidgetItem*> newGameItems;
-    QTreeWidgetItem *planetItem = getPlanetTreeWidgetItem(planet);
-    while (planetItem->childCount()) {
-        delete planetItem->child(0);
+    //saving selction
+    QModelIndex currentIndex = planetTreeView->selectionModel()->currentIndex();
+
+    QStandardItem* planetItem = getPlanetTreeWidgetItem(planet);
+    while (planetItem->rowCount()) {
+        qDeleteAll(planetItem->takeRow(0));
     }
-    for (int i = 0; i < games.length(); i ++) {
-        if (gameTypeFilter[games.at(i).getGametype()]) {
-            continue;
-        }
-        if (hideOnFullFilter && games.at(i).getCurrentPlayers() == games.at(i).getMaxPlayers()) {
-            continue;
-        }
-        if (hideOnEmptyFilter && games.at(i).getCurrentPlayers() == 0) {
-            continue;
-        }
-        QTreeWidgetItem *gameItem = new QTreeWidgetItem(planetItem);
-        gameItem->setText(0, games.at(i).getCleanedHostname());
-        gameItem->setText(1, games.at(i).getMap());
-        gameItem->setText(2, Game::getNameForGametype(games.at(i).getGametype()));
-        gameItem->setText(3, QString("%1/%2").arg(games.at(i).getCurrentPlayers()).arg(games.at(i).getMaxPlayers()));
-        gameItem->setText(4, QString("%1:%2").arg(games.at(i).getIp()).arg(games.at(i).getPort()));
-        newGameItems << gameItem;
+    for (const Game &game : games) {
+        QList<QStandardItem*> gameItems;
+        gameItems << new QStandardItem(game.getCleanedHostname());
+        gameItems << new QStandardItem(game.getMap());
+        gameItems << new QStandardItem(Game::getNameForGametype(game.getGametype()));
+        gameItems << new QStandardItem(QString("%1/%2").arg(game.getCurrentPlayers()).arg(game.getMaxPlayers()));
+        gameItems << new QStandardItem(QString("%1:%2").arg(game.getIp()).arg(game.getPort()));
+        planetItem->appendRow(gameItems);
     }
-    planetsTree->expandAll();
+
+    //restoring selection
+    planetTreeView->selectionModel()->clear();
+    planetTreeView->selectionModel()->setCurrentIndex(currentIndex, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+
+    planetTreeView->expandAll();
     resizeColumnsToContents();
-    planetItem->addChildren(newGameItems);
 }
 
 void inline PlanetScannerDock::resizeColumnsToContents()
 {
     if (!resizeOnRefreshDisabled) {
-        planetsTree->header()->resizeSections(QHeaderView::ResizeToContents);
+        planetTreeView->header()->resizeSections(QHeaderView::ResizeToContents);
     }
 }
 
@@ -168,21 +158,22 @@ void PlanetScannerDock::setPlanetConnectionError(const Planet &planet, QAbstract
     QString errorEnum;
     QDebug(&errorEnum).nospace() << socketError;
     QString error = QString("Error: [%1]").arg(errorEnum);
-    QTreeWidgetItem *planetItem = getPlanetTreeWidgetItem(planet);
-    //no need to reset the error and resize the treeview if the error is the same.
-    //moreover, resizing treeview will just annoy the user.
-    if (planetItem->text(1).compare(error)) {
-        planetItem->setText(1, error);
+    QStandardItem* planetItem = getPlanetTreeWidgetItem(planet);
+    QStandardItem* errorItem = planetTreeModel->item(planetItem->row(), 1);
+    //no need to reset the error and resize the treeview if the error is the same
+    if (errorItem->text().compare(error)) {
+        errorItem->setText(error);
         if (!resizeOnRefreshDisabled) {
-            planetsTree->resizeColumnToContents(1);
+            planetTreeView->resizeColumnToContents(1);
         }
     }
 }
 
 void PlanetScannerDock::clearPlanetConnectionError(const Planet &planet)
 {
-    QTreeWidgetItem *planetItem = getPlanetTreeWidgetItem(planet);
-    planetItem->setText(1, "");
+    QStandardItem* planetItem = getPlanetTreeWidgetItem(planet);
+    QStandardItem* errorItem = planetTreeModel->item(planetItem->row(), 1);
+    errorItem->setText("");
     resizeColumnsToContents();
 }
 
@@ -212,7 +203,7 @@ void PlanetScannerDock::showSettingsDialog()
         }
         QTreeWidgetItemIterator it(settings.planetTree);
         while (*it) {
-            /*don't add entries with non numerical values for port*/
+            //don't add entries with non numerical values for port
             bool ok;
             int port = (*it)->text(1).toInt(&ok);
             if (ok) {
@@ -221,14 +212,14 @@ void PlanetScannerDock::showSettingsDialog()
             it++;
         }
     }
-    gameTypeFilter[Game::DM] = settings.filterGametypeDmCheckbox->isChecked();
-    gameTypeFilter[Game::TDM] = settings.filterGametypeTdmCheckbox->isChecked();
-    gameTypeFilter[Game::CTF] = settings.filterGametypeCtfCheckbox->isChecked();
-    gameTypeFilter[Game::RAIL] = settings.filterGametypeRailCheckbox->isChecked();
-    gameTypeFilter[Game::PRAC] = settings.filterGametypePracCheckbox->isChecked();
-    gameTypeFilter[Game::DOM] = settings.filterGametypeDomCheckbox->isChecked();
-    hideOnFullFilter = settings.filterPlayersFullCheckbox->isChecked();
-    hideOnEmptyFilter = settings.filterPlayersEmptyCheckbox->isChecked();
+    planetTreeProxyModel->setGameTypeFilter(Game::DM, settings.filterGametypeDmCheckbox->isChecked());
+    planetTreeProxyModel->setGameTypeFilter(Game::TDM, settings.filterGametypeTdmCheckbox->isChecked());
+    planetTreeProxyModel->setGameTypeFilter(Game::CTF, settings.filterGametypeCtfCheckbox->isChecked());
+    planetTreeProxyModel->setGameTypeFilter(Game::RAIL, settings.filterGametypeRailCheckbox->isChecked());
+    planetTreeProxyModel->setGameTypeFilter(Game::PRAC, settings.filterGametypePracCheckbox->isChecked());
+    planetTreeProxyModel->setGameTypeFilter(Game::DOM, settings.filterGametypeDomCheckbox->isChecked());
+    planetTreeProxyModel->setHideOnFullFilter(settings.filterPlayersFullCheckbox->isChecked());
+    planetTreeProxyModel->setHideOnEmptyFilter(settings.filterPlayersEmptyCheckbox->isChecked());
     if (settings.miscRefreshCheckbox->isChecked()) {
         if (settings.miscRefreshSpinbox->value()*1000 != getAutoRefreshInterval()) {
             autoRefreshTimer->start(settings.miscRefreshSpinbox->value()*1000);
@@ -239,12 +230,12 @@ void PlanetScannerDock::showSettingsDialog()
         }
     }
     for (int i = 0; i < 5; i ++) {
-        bool wasHidden = planetsTree->isColumnHidden(i);
-        planetsTree->setColumnHidden(i, settings.tableHideColumnCheckbox[i]->isChecked());
+        bool wasHidden = planetTreeView->isColumnHidden(i);
+        planetTreeView->setColumnHidden(i, settings.tableHideColumnCheckbox[i]->isChecked());
         if (!settings.tableHideColumnCheckbox[i]->isChecked()
                 && wasHidden
                 && i != 0) {
-            planetsTree->resizeColumnToContents(i-1);
+            planetTreeView->resizeColumnToContents(i-1);
         }
     }
     resizeOnRefreshDisabled = settings.tableResizeDisableOnRefreshCheckbox->isChecked();
@@ -260,8 +251,13 @@ void PlanetScannerDock::addPlanet(Planet* planet)
     connect(planet, SIGNAL(error(const Planet &, QAbstractSocket::SocketError)), this, SLOT(setPlanetConnectionError(const Planet &, QAbstractSocket::SocketError)));
     connect(planet, SIGNAL(errorCeared(const Planet &)), this, SLOT(clearPlanetConnectionError(const Planet &)));
     planetList << planet;
-    QTreeWidgetItem *planetItem = new QTreeWidgetItem(planetsTree);
-    planetItem->setText(0, QString("%1:%2").arg(planet->getAddress()).arg(planet->getPort()));
+    QList<QStandardItem*> planetRow;
+    planetRow << new QStandardItem(QString("%1:%2").arg(planet->getAddress()).arg(planet->getPort()));
+    planetRow << new QStandardItem();
+    planetRow << new QStandardItem();
+    planetRow << new QStandardItem();
+    planetRow << new QStandardItem();
+    planetTreeModel->invisibleRootItem()->appendRow(planetRow);
     resizeColumnsToContents();
 }
 
@@ -273,7 +269,8 @@ void PlanetScannerDock::removePlanet(Planet* planet)
 
 void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
 {
-    if (planetsTree->selectedItems()[0]->parent() == 0) {
+    QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.at(2).data().toString() == "") {
         error("Selected planet instead of a game.");
         return;
     }
@@ -298,19 +295,20 @@ void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
     nfksetup.beginGroup("nfkplanet");
     QString oldAddress = nfksetup.value("address").toString();
     QString oldPort = nfksetup.value("port").toString();
-    QString newAddress = planetsTree->selectedItems()[0]->parent()->text(0).split(':')[0];
-    QString newPort = planetsTree->selectedItems()[0]->parent()->text(0).split(':')[1];
+    QStringList fullAddress = selectedIndexes.at(0).parent().data().toString().split(':');
+    QString newAddress = fullAddress[0];
+    QString newPort = fullAddress[1];
     nfksetup.setValue("address", newAddress);
     nfksetup.setValue("port", newPort);
     game->start(gamePath, arguments.split(" "));
-    game->waitForStarted(10000);
+    game->waitForStarted(10 * 1000);
     nfksetup.setValue("address", oldAddress);
     nfksetup.setValue("port", oldPort);
 }
 
 void PlanetScannerDock::connectSelected()
 {
-    startGame("+connect " + planetsTree->selectedItems()[0]->text(4));
+    startGame("+connect " + planetTreeView->selectionModel()->selectedIndexes().at(4).data().toString());
 }
 
 void PlanetScannerDock::connectAsSpectatorSelected()
@@ -321,8 +319,9 @@ void PlanetScannerDock::connectAsSpectatorSelected()
         error("Couldn't open:\n\"" + configPath + "\"");
         return;
     }
-    QString configContent = "spectator 1\n\recho spectator on\n\rconnect " + planetsTree->selectedItems()[0]->text(4);
+    QString configContent = "spectator 1\necho spectator on\nconnect " + planetTreeView->selectionModel()->selectedIndexes().at(4).data().toString();
     config.write(configContent.toLatin1());
+    config.flush();
     startGame("+exec spec ");
 }
 
@@ -334,17 +333,18 @@ QString PlanetScannerDock::getBasenfkPath()
 void PlanetScannerDock::copySelected()
 {
     QString copy;
-    for (int i = 0; i < planetsTree->columnCount(); i++) {
-        if (planetsTree->isColumnHidden(i)) {
+    QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    for (int i = 0; i < planetTreeModel->columnCount(); i++) {
+        if (planetTreeView->isColumnHidden(i)) {
             continue;
         }
-        QString column = planetsTree->selectedItems()[0]->text(i);
+        QString column = selectedIndexes.at(i).data().toString();
         if (!column.compare("")) {
             continue;
         }
         copy += column;
-        if (i < planetsTree->columnCount()-1) {
-            if (planetsTree->selectedItems()[0]->text(i+1).compare("") && !planetsTree->isColumnHidden(i+1)) {
+        if (i < planetTreeModel->columnCount()-1) {
+            if (selectedIndexes.at(i+1).data().toString().compare("") && !planetTreeView->isColumnHidden(i+1)) {
                 copy += "|";
             }
         }
@@ -371,17 +371,17 @@ void PlanetScannerDock::save()
     set.beginWriteArray("Gametype");
     for (int i = 0; i < 8; i ++) {
         set.setArrayIndex(i);
-        set.setValue("hide", gameTypeFilter[i]);
+        set.setValue("hide", planetTreeProxyModel->getGameTypeFilter()[i]);
     }
     set.endArray();
     set.beginGroup("PlayerCount");
-    set.setValue("hideFull", hideOnFullFilter);
-    set.setValue("hideEmpty", hideOnEmptyFilter);
+    set.setValue("hideFull", planetTreeProxyModel->getHideOnFullFilter());
+    set.setValue("hideEmpty", planetTreeProxyModel->getHideOnEmptyFilter());
     set.endGroup();
     set.endGroup();
     set.beginGroup("Table");
     set.beginWriteArray("Column");
-    for (int i = 0; i < planetsTree->columnCount(); i++) {
+    for (int i = 0; i < planetTreeModel->columnCount(); i++) {
         set.setArrayIndex(i);
         set.setValue("hide", isColumnHidden(i));
     }
@@ -419,12 +419,12 @@ void PlanetScannerDock::load()
     set.beginReadArray("Gametype");
     for (int i = 0; i < 8; i ++) {
         set.setArrayIndex(i);
-        gameTypeFilter[i] = set.value("hide", false).toBool();
+        planetTreeProxyModel->setGameTypeFilter(i, set.value("hide", false).toBool());
     }
     set.endArray();
     set.beginGroup("PlayerCount");
-    hideOnFullFilter = set.value("hideFull", false).toBool();
-    hideOnEmptyFilter = set.value("hideEmpty", false).toBool();
+    planetTreeProxyModel->setHideOnFullFilter(set.value("hideFull", false).toBool());
+    planetTreeProxyModel->setHideOnEmptyFilter(set.value("hideEmpty", false).toBool());
     set.endGroup();
     set.endGroup();
     set.beginGroup("Table");
@@ -432,7 +432,7 @@ void PlanetScannerDock::load()
     for (int i = 0; i < planetTreeColumns; i++) {
         set.setArrayIndex(i);
         if (set.value("hide", false).toBool()) {
-            planetsTree->hideColumn(i);
+            planetTreeView->hideColumn(i);
         }
     }
     set.endArray();
@@ -453,15 +453,15 @@ void PlanetScannerDock::error(const QString &errorText)
 
 void PlanetScannerDock::showContextMenu(const QPoint &pos)
 {
-    QPoint globalPos = planetsTree->viewport()->mapToGlobal(pos);
+    QPoint globalPos = planetTreeView->viewport()->mapToGlobal(pos);
     globalPos.setX(globalPos.x() + 1);
-    QList<QTreeWidgetItem*> selectedItems = planetsTree->selectedItems();
-    if (selectedItems.size() != 1) {
+    QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() != 1 * 5) {
         return;
     }
-    QTreeWidgetItem* selectedItem = selectedItems[0];
+    QModelIndex selectedIndex = selectedIndexes[2];
     contextMenuShown = true;
-    if (!selectedItem->text(4).compare("")) {
+    if (!selectedIndex.data().toString().compare("")) {
         planetContextMenu->exec(globalPos);
     } else {
         gameContextMenu->exec(globalPos);

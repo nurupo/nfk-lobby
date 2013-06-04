@@ -19,8 +19,11 @@
 
 #include "game.hpp"
 #include "planet.hpp"
+#include "planettreesortfilterproxymodel.hpp"
+#include "planettreemodel.hpp"
 
 #include <QDockWidget>
+#include <QStandardItemModel>
 #include <QTimer>
 #include <QTreeWidget>
 
@@ -31,13 +34,10 @@ public:
     PlanetScannerDock(QWidget* parent);
     ~PlanetScannerDock();
     QList<Planet*> & getPlanetList() {return planetList;}
-    const bool* getGameTypeFilter() const {return gameTypeFilter;}
-    bool getHideOnFullFilter() const {return hideOnFullFilter;}
-    bool getHideOnEmptyFilter() const {return hideOnEmptyFilter;}
     bool isAutoRefrshActive() const {return autoRefreshTimer->isActive();}
     int getAutoRefreshInterval() const {return autoRefreshTimer->interval();}
-    bool isAddressColumnHidden() const {return planetsTree->isColumnHidden(4);}
-    bool isColumnHidden(int i) const {return planetsTree->isColumnHidden(i);}
+    const PlanetTreeSortFilterProxyModel* getPlanetTreeProxyModel() const {return planetTreeProxyModel;}
+    bool isColumnHidden(int i) const {return planetTreeView->isColumnHidden(i);}
     bool isResizeOnRefreshDisabled() const {return resizeOnRefreshDisabled;}
     const QString & getGamePath() const {return gamePath;}
     const QString & getGameCommandlineArguments() const {return gameCommandlineArguments;}
@@ -49,16 +49,15 @@ private:
     QMenu* planetContextMenu;
     bool contextMenuShown;
     QTimer* autoRefreshTimer;
-    bool gameTypeFilter[8];
-    bool hideOnFullFilter;
-    bool hideOnEmptyFilter;
     bool resizeOnRefreshDisabled;
     QString gamePath;
     QString gameCommandlineArguments;
     QList<Planet*> planetList;
-    QTreeWidget* planetsTree;
+    QTreeView* planetTreeView;
+    PlanetTreeModel* planetTreeModel;
+    PlanetTreeSortFilterProxyModel* planetTreeProxyModel;
     void removePlanet(Planet* planet);
-    QTreeWidgetItem* getPlanetTreeWidgetItem(const Planet &planet);
+    QStandardItem* getPlanetTreeWidgetItem(const Planet &planet);
     void resizeColumnsToContents();
     void startGame(const QString &additionalCommandlineArguments);
     QString getBasenfkPath();
