@@ -21,6 +21,8 @@
 #include <QVariant>
 #include <QVector>
 
+namespace Chat {
+
 class UserItem
 {
 public:
@@ -42,5 +44,7 @@ private:
     QString itemData;
     UserItem* parentItem;
 };
+
+} // namespace Chat
 
 #endif // UserItem_HPP

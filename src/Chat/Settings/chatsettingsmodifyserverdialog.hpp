@@ -17,7 +17,7 @@
 #ifndef CHATSETTINGSMODIFYSERVERDIALOG_HPP
 #define CHATSETTINGSMODIFYSERVERDIALOG_HPP
 
-#include "chatsettingsserverpage.hpp"
+#include "chatsettings.hpp"
 
 #include <QComboBox>
 #include <QDialog>
@@ -25,12 +25,14 @@
 #include <QLineEdit>
 #include <QSpinBox>
 
+namespace Chat {
+
 class ChatSettingsModifyServerDialog : public QDialog
 {
 public:
     explicit ChatSettingsModifyServerDialog(QWidget* parent);
-    void setServerInformation(const ChatSettingsServerPage::Server&server);
-    ChatSettingsServerPage::Server getServerInformation();
+    void setServerInformation(const Settings::Server& server);
+    Settings::Server getServerInformation();
 
 private:
     QGroupBox* buildServerInfoGroup();
@@ -41,5 +43,7 @@ private:
     QLineEdit* passwordEdit;
     QComboBox* encodingComboBox;
 };
+
+} // namespace Chat
 
 #endif // CHATSETTINGSMODIFYSERVERDIALOG_HPP

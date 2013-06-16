@@ -20,6 +20,8 @@
 #include "../../IrcClient/user.hpp"
 #include "basicpage.hpp"
 
+namespace Chat {
+
 class ServerPage : public BasicPage
 {
     Q_OBJECT
@@ -38,12 +40,14 @@ signals:
 public slots:
     void connecting(const QString &address, int port);
     void serverResponse(const QString &response);
-    void notice(const User &sender, const QString &notice);
-    void ctcpRequest(const QString &target, const User &sender, const QString &request);
-    void ctcpReply(const QString &target, const User &sender, const QString &request, const QString &message);
+    void notice(const IrcClient::User &sender, const QString &notice);
+    void ctcpRequest(const QString &target, const IrcClient::User &sender, const QString &request);
+    void ctcpReply(const QString &target, const IrcClient::User &sender, const QString &request, const QString &message);
     void quit(const QString &message);
     void disconnected();
-    void userModeChanged(const QString &target, const User &sender, const QString &mode);
+    void userModeChanged(const QString &target, const IrcClient::User &sender, const QString &mode);
 };
+
+} // namespace Chat
 
 #endif // SERVERPAGE_HPP

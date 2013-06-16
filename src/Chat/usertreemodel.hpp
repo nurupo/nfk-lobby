@@ -23,6 +23,8 @@
 #include <QModelIndex>
 #include <QVariant>
 
+namespace Chat {
+
 class UserTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -64,5 +66,7 @@ signals:
     void branchAdded(const QModelIndex &branch);
 
 };
+
+} // namespace Chat
 
 #endif // USERTREEMODEL_HPP

@@ -25,6 +25,8 @@
 #include <QMainWindow>
 #include <QTextEdit>
 
+namespace Chat {
+
 class ChannelPage : public BasicPage
 {
     Q_OBJECT
@@ -52,17 +54,19 @@ public slots:
 
     void nicksReady();
     void topicTextResponse(const QString &topicText);
-    void topicInfoResponse(const User &user, const QDateTime &topicDate);
-    void channelMessage(const User &sender, const QString &message);
-    void action(const User &sender, const QString &action);
-    void join(const User &user);
-    void part(const User &user);
-    void nickChange(const User &user, const QString &newNick);
-    void notice(const User &sender, const QString &notice);
-    void quit(const User &user, const QString &message);
-    void topicChanged(const QString &newTopicText, const User &user, const QDateTime &newTopicDate);
-    void modeChanged(const User &sender, const QString &mode);
-    void kick(const User& sender, const QString& message, const QString& recipient);
+    void topicInfoResponse(const IrcClient::User &user, const QDateTime &topicDate);
+    void channelMessage(const IrcClient::User &sender, const QString &message);
+    void action(const IrcClient::User &sender, const QString &action);
+    void join(const IrcClient::User &user);
+    void part(const IrcClient::User &user);
+    void nickChange(const IrcClient::User &user, const QString &newNick);
+    void notice(const IrcClient::User &sender, const QString &notice);
+    void quit(const IrcClient::User &user, const QString &message);
+    void topicChanged(const QString &newTopicText, const IrcClient::User &user, const QDateTime &newTopicDate);
+    void modeChanged(const IrcClient::User &sender, const QString &mode);
+    void kick(const IrcClient::User& sender, const QString& message, const QString& recipient);
 };
+
+} // namespace Chat
 
 #endif // CHANNELPAGE_HPP

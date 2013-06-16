@@ -20,6 +20,8 @@
 #include <QString>
 #include <QStringList>
 
+namespace GamePreferences {
+
 class GameType
 {
 public:
@@ -34,5 +36,7 @@ private:
     static QStringList gameTypeNames;
 
 };
+
+} // namespace GamePreferences
 
 #endif // GAMETYPE_HPP

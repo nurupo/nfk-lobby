@@ -16,6 +16,8 @@
 
 #include "channel.hpp"
 
+namespace IrcClient {
+
 Channel::Channel(const QString& channelName) :
     QObject(0)
 {
@@ -57,3 +59,5 @@ void Channel::setUserMode(const QString& nick, const UserMode &newUserMode)
     userMode->op = newUserMode.op;
     userMode->voice = newUserMode.voice;
 }
+
+} // namespace IrcClient

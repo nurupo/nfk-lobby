@@ -31,6 +31,8 @@
 #include <QTextEdit>
 #include <QTreeView>
 
+namespace Chat {
+
 class ChatDock : public QDockWidget
 {
     Q_OBJECT
@@ -38,7 +40,7 @@ public:
     ChatDock(QWidget* parent);
     ~ChatDock();
 
-    static IrcClient* ircClient;
+    static IrcClient::IrcClient* ircClient;
 
 private:
     QString getSelectedTabName() const;
@@ -68,7 +70,7 @@ private:
 
 private slots:
     void changeTopic(const QString& topicText);
-    void joinedChannel(const Channel& channel);
+    void joinedChannel(const IrcClient::Channel& channel);
 
     void startPrivate(const QString &nick);
     void sendMessage();
@@ -81,13 +83,15 @@ private slots:
     void closeChannelAction();
     void disconnectFromServer();
     void connectToServer();
-    void routePrivateMessage(const User &sender, const QString &message, const QString &target);
-    void routePrivateAction(const User &sender, const QString &message, const QString &target);
+    void routePrivateMessage(const IrcClient::User &sender, const QString &message, const QString &target);
+    void routePrivateAction(const IrcClient::User &sender, const QString &message, const QString &target);
     void deletePrivatePage();
     //void routePart(const Channel& channel);
     void showSettingsDialog();
     void applySettings();
     void joinChannels();
 };
+
+} // namespace Chat
 
 #endif // CHATDOCK_HPP

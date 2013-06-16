@@ -21,19 +21,8 @@
 #include <QListWidgetItem>
 #include <QPushButton>
 
-QList<AbstractSettingsPage*> BasicSettingsDialog::pages;
-
-BasicSettingsDialog::BasicSettingsDialog(const QString& sectionName, QWidget* parent) :
-    QDialog(parent), sectionName(sectionName)
-{
-}
-
-BasicSettingsDialog::~BasicSettingsDialog()
-{
-    removePages();
-}
-
-void BasicSettingsDialog::buildBasicGui()
+BasicSettingsDialog::BasicSettingsDialog(QWidget *parent) :
+    QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
@@ -57,73 +46,20 @@ void BasicSettingsDialog::buildBasicGui()
     connect(listWidget, &QListWidget::currentRowChanged, stackedWidget, &QStackedWidget::setCurrentIndex);
 }
 
-void BasicSettingsDialog::showDialog()
+void BasicSettingsDialog::addPage(const QString& iconPath, const QString& name, AbstractSettingsPage* page)
 {
-    buildBasicGui();
-    buildGui();
-    buildPagesGui();
-    exec();
+    listWidget->addItem(new QListWidgetItem(QIcon(iconPath), name, listWidget));
+    page->buildGui();
+    page->setGui();
+    stackedWidget->addWidget(page);
 }
 
 void BasicSettingsDialog::accept()
 {
-    apply();
-    save();
+    for (int i = 0; i < stackedWidget->count(); i ++) {
+        AbstractSettingsPage* settinsPage = static_cast<AbstractSettingsPage*>(stackedWidget->widget(i));
+        settinsPage->applyChanges();
+    }
+
     QDialog::accept();
-}
-
-void BasicSettingsDialog::apply()
-{
-    for (int i = 0; i < pages.size(); i ++) {
-        pages[i]->apply();
-    }
-}
-
-void BasicSettingsDialog::save()
-{
-    QSettings settings("settings.ini", QSettings::IniFormat);
-    settings.beginGroup(sectionName);
-    for (int i = 0; i < pages.size(); i ++) {
-        settings.remove(pages[i]->getName());
-        settings.beginGroup(pages[i]->getName());
-        pages[i]->save(settings);
-        settings.endGroup();
-    }
-    settings.endGroup();
-}
-
-void BasicSettingsDialog::buildPagesGui()
-{
-    for (int i = 0; i < pages.size(); i ++) {
-        listWidget->addItem(new QListWidgetItem(pages[i]->getIcon(), pages[i]->getName(), listWidget));
-        stackedWidget->addWidget(pages[i]);
-        pages[i]->buildGui();
-        pages[i]->setGui();
-    }
-}
-
-void BasicSettingsDialog::loadAddedPages(const QString &sectionName)
-{
-    QSettings settings("settings.ini", QSettings::IniFormat);
-    settings.beginGroup(sectionName);
-    for (int i = 0; i < pages.size(); i ++) {
-        settings.beginGroup(pages[i]->getName());
-        pages[i]->load(settings);
-        settings.endGroup();
-    }
-    settings.endGroup();
-}
-
-void BasicSettingsDialog::addPage(AbstractSettingsPage* page)
-{
-    pages << page;
-}
-
-void BasicSettingsDialog::removePages()
-{
-    while (pages.size() != 0) {
-        AbstractSettingsPage* page = pages[0];
-        pages.removeAt(0);
-        delete page;
-    }
 }

@@ -18,29 +18,16 @@
 #define ABSTRACTSETTINGSPAGE_HPP
 
 #include <QWidget>
-#include <QStackedWidget>
-#include <QIcon>
-#include <QString>
-#include <QSettings>
 
 class AbstractSettingsPage : public QWidget
 {
 public:
-    explicit AbstractSettingsPage(QStackedWidget *parent, const QString &menuName, const QString &iconPath);
-    virtual ~AbstractSettingsPage();
+    explicit AbstractSettingsPage(QWidget* parent);
+    virtual ~AbstractSettingsPage() = default;
 
-    const QIcon& getIcon() const;
-    const QString& getName() const;
-
-    virtual void save(QSettings& settings) = 0;
-    virtual void load(QSettings& settings) = 0;
-    virtual void apply() = 0;
+    virtual void applyChanges() = 0;
     virtual void buildGui() = 0;
     virtual void setGui() = 0;
-    
-private:
-    QString name;
-    QIcon icon;
 
 };
 

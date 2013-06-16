@@ -14,54 +14,43 @@
     See the COPYING file for more details.
 */
 
-#ifndef CHATSETTINGSSERVERPAGE_HPP
-#define CHATSETTINGSSERVERPAGE_HPP
+#ifndef CHATSERVERSETTINGSPAGE_HPP
+#define CHATSERVERSETTINGSPAGE_HPP
 
 #include "../../Settings/abstractsettingspage.hpp"
+#include "chatsettings.hpp"
 
 #include <QGroupBox>
 #include <QStandardItemModel>
 #include <QString>
 #include <QTreeView>
 
-class ChatSettingsServerPage : public AbstractSettingsPage
+namespace Chat {
+
+class ServerSettingsPage : public AbstractSettingsPage
 {
     Q_OBJECT
 public:
-    explicit ChatSettingsServerPage(QStackedWidget *parent, const QString &pageName, const QString &iconPath);
-
-    void save(QSettings& settings);
-    void apply();
+    ServerSettingsPage(QWidget* parent, QStandardItemModel* serverListModel);
+    void applyChanges();
     void buildGui();
     void setGui();
 
-    struct Server
-    {
-        QString name;
-        QString address;
-        int port;
-        QString password;
-        QString encoding;
-    };
-
-    static QList<Server> getServerList()            {return serverList;}
-    static QStandardItemModel* getServerListModel() {return serverListModel;}
-
 private:
-    void load(QSettings& settings);
-
     QGroupBox* buildServerGroup();
-    static void buildServerModel();
+    void buildServerModel();
 
-    static QList<Server> serverList;
-    QList<Server> modifiedServerList;
-    static QStandardItemModel* serverListModel;
+    QList<Settings::Server> modifiedServerList;
+    QStandardItemModel* serverListModel;
     QTreeView* serverListView;
 
 private slots:
     void serverAddButtonClicked();
     void serverRemoveButtonClicked();
     void serverEditButtonClicked();
+
 };
 
-#endif // CHATSETTINGSSERVERPAGE_HPP
+} // namespace Chat
+
+#endif // CHATSERVERSETTINGSPAGE_HPP

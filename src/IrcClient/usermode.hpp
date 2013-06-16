@@ -19,6 +19,8 @@
 
 #include <QString>
 
+namespace IrcClient {
+
 struct UserMode
 {
     explicit UserMode(bool op = false, bool voice = false) : op(op), voice(voice) {}
@@ -26,5 +28,7 @@ struct UserMode
     bool op;
     bool voice;
 };
+
+} // namespace IrcClient
 
 #endif // USERMODE_HPP

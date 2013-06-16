@@ -20,6 +20,8 @@
 #include <QEvent>
 #include <QRegularExpression>
 
+namespace Chat {
+
 TopicLabel::TopicLabel(QWidget* parent) : QLabel(parent)
 {
     setWordWrap(true);
@@ -66,3 +68,5 @@ QSize TopicLabel::sizeHint() const
 {
     return QSize(1, 1);
 }
+
+} // namespace Chat

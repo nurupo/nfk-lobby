@@ -23,6 +23,8 @@
 #include <QPushButton>
 #include <QTextCodec>
 
+namespace Chat {
+
 ChatSettingsModifyServerDialog::ChatSettingsModifyServerDialog(QWidget* parent) :
     QDialog(parent)
 {
@@ -96,7 +98,7 @@ QGroupBox* ChatSettingsModifyServerDialog::buildServerInfoGroup()
     return group;
 }
 
-void ChatSettingsModifyServerDialog::setServerInformation(const ChatSettingsServerPage::Server &server)
+void ChatSettingsModifyServerDialog::setServerInformation(const Settings::Server &server)
 {
     nameEdit->setText(server.name);
     addressEdit->setText(server.address);
@@ -105,9 +107,9 @@ void ChatSettingsModifyServerDialog::setServerInformation(const ChatSettingsServ
     encodingComboBox->setCurrentIndex(encodingComboBox->findText(server.encoding));
 }
 
-ChatSettingsServerPage::Server ChatSettingsModifyServerDialog::getServerInformation()
+Settings::Server ChatSettingsModifyServerDialog::getServerInformation()
 {
-    ChatSettingsServerPage::Server server;
+    Settings::Server server;
 
     server.name = nameEdit->text();
     server.address = addressEdit->text();
@@ -117,3 +119,5 @@ ChatSettingsServerPage::Server ChatSettingsModifyServerDialog::getServerInformat
 
     return server;
 }
+
+} // namespace Chat

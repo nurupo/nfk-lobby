@@ -19,6 +19,8 @@
 
 #include <QString>
 
+namespace IrcClient {
+
 struct User
 {
     QString nick;
@@ -26,5 +28,7 @@ struct User
     QString hostname;
 };
 
+
+} // namespace IrcClient
 
 #endif // USER_HPP

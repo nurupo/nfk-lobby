@@ -24,7 +24,8 @@
 #include <QHashIterator>
 #include <QLineEdit>
 #include <QTime>
-#include <QTime>
+
+namespace Chat {
 
 ChannelPage::ChannelPage(QTreeWidgetItem* pageTab, QTreeWidget* tabTree) :
     BasicPage(pageTab, tabTree)
@@ -47,7 +48,7 @@ ChannelPage::~ChannelPage()
 
 void ChannelPage::nicksReady()
 {    
-    QHashIterator<QString, UserMode*> iterator = ChatDock::ircClient->getChannel(getName()).getUserIterator();
+    QHashIterator<QString, IrcClient::UserMode*> iterator = ChatDock::ircClient->getChannel(getName()).getUserIterator();
     while (iterator.hasNext()) {
         QString key = iterator.next().key();
         addUser(key);
@@ -62,7 +63,7 @@ void ChannelPage::topicTextResponse(const QString &topicText)
     );
 }
 
-void ChannelPage::topicInfoResponse(const User &user, const QDateTime &topicDate)
+void ChannelPage::topicInfoResponse(const IrcClient::User &user, const QDateTime &topicDate)
 {
     print(QString("*** Topic was set by %1 (%2@%3) at %4")
           .arg(user.nick)
@@ -73,7 +74,7 @@ void ChannelPage::topicInfoResponse(const User &user, const QDateTime &topicDate
     );
 }
 
-void ChannelPage::channelMessage(const User &user, const QString &message)
+void ChannelPage::channelMessage(const IrcClient::User &user, const QString &message)
 {
     print(QString("<%1> %2")
           .arg(user.nick)
@@ -82,7 +83,7 @@ void ChannelPage::channelMessage(const User &user, const QString &message)
     );
 }
 
-void ChannelPage::join(const User &user)
+void ChannelPage::join(const IrcClient::User &user)
 {
     print(QString("*** %1 (%2@%3) has joined the channel")
           .arg(user.nick)
@@ -98,7 +99,7 @@ void ChannelPage::join(const User &user)
     }
 }
 
-void ChannelPage::part(const User &user)
+void ChannelPage::part(const IrcClient::User &user)
 {
     print(QString("*** %1 (%2@%3) has left the channel")
           .arg(user.nick)
@@ -113,7 +114,7 @@ void ChannelPage::part(const User &user)
     }
 }
 
-void ChannelPage::quit(const User &user, const QString &message)
+void ChannelPage::quit(const IrcClient::User &user, const QString &message)
 {
     print(QString("*** %1 (%2@%3) has quit (%4)")
           .arg(user.nick)
@@ -129,7 +130,7 @@ void ChannelPage::quit(const User &user, const QString &message)
     }
 }
 
-void ChannelPage::nickChange(const User &user, const QString &newNick)
+void ChannelPage::nickChange(const IrcClient::User &user, const QString &newNick)
 {
     print(QString("*** %1 is now known as %2")
           .arg(user.nick)
@@ -139,7 +140,7 @@ void ChannelPage::nickChange(const User &user, const QString &newNick)
     renameUser(user.nick, newNick);
 }
 
-void ChannelPage::action(const User &sender, const QString &action)
+void ChannelPage::action(const IrcClient::User &sender, const QString &action)
 {
     print(QString("* %1 %2")
           .arg(sender.nick)
@@ -148,7 +149,7 @@ void ChannelPage::action(const User &sender, const QString &action)
     );
 }
 
-void ChannelPage::notice(const User &sender, const QString &notice)
+void ChannelPage::notice(const IrcClient::User &sender, const QString &notice)
 {
     print(QString("[%1] %2")
           .arg(sender.nick)
@@ -157,7 +158,7 @@ void ChannelPage::notice(const User &sender, const QString &notice)
     );
 }
 
-void ChannelPage::topicChanged(const QString &newTopicText, const User &user, const QDateTime &/*newTopicDate*/)
+void ChannelPage::topicChanged(const QString &newTopicText, const IrcClient::User &user, const QDateTime &/*newTopicDate*/)
 {
     print(QString("*** %1 changes topic to \"%2\"")
           .arg(user.nick)
@@ -166,7 +167,7 @@ void ChannelPage::topicChanged(const QString &newTopicText, const User &user, co
     );
 }
 
-void ChannelPage::kick(const User& sender, const QString& message, const QString& recipient)
+void ChannelPage::kick(const IrcClient::User& sender, const QString& message, const QString& recipient)
 {
     print(QString("*** %1 has kicked %2 (%3)")
           .arg(sender.nick)
@@ -181,7 +182,7 @@ void ChannelPage::kick(const User& sender, const QString& message, const QString
     }
 }
 
-void ChannelPage::modeChanged(const User& sender, const QString& mode)
+void ChannelPage::modeChanged(const IrcClient::User& sender, const QString& mode)
 {
     print(QString("*** %1 sets mode %2")
           .arg(sender.nick)
@@ -194,7 +195,7 @@ void ChannelPage::modeChanged(const User& sender, const QString& mode)
 
     if (modes.contains('v') || modes.contains('o')) {
         const QString recipient = iterator.next();
-        const UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(recipient);
+        const IrcClient::UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(recipient);
         userTreeModel->removeUser(recipient);
         userTreeModel->addUser(recipient, mode.op, mode.voice);
     }
@@ -202,19 +203,19 @@ void ChannelPage::modeChanged(const User& sender, const QString& mode)
 
 void ChannelPage::addUser(const QString &nick)
 {
-    const UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(nick);
+    const IrcClient::UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(nick);
     userTreeModel->addUser(nick, mode.op, mode.voice);
 }
 
 void ChannelPage::removeUser(const QString &nick)
 {
-    const UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(nick);
+    const IrcClient::UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(nick);
     userTreeModel->removeUser(nick, mode.op, mode.voice);
 }
 
 void ChannelPage::renameUser(const QString &oldNick, const QString &newNick)
 {
-    const UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(oldNick);
+    const IrcClient::UserMode& mode = ChatDock::ircClient->getChannel(getName()).getUserMode(oldNick);
     userTreeModel->removeUser(oldNick, mode.op, mode.voice);
     userTreeModel->addUser(newNick, mode.op, mode.voice);
 }
@@ -239,3 +240,5 @@ void ChannelPage::enable()
     }
     BasicPage::enable();
 }
+
+} // namespace Chat

@@ -16,24 +16,7 @@
 
 #include "abstractsettingspage.hpp"
 
-#include <QIcon>
-#include <QString>
-
-AbstractSettingsPage::AbstractSettingsPage(QStackedWidget *parent, const QString &pageName, const QString &iconPath) :
-    QWidget(parent), name(pageName), icon(iconPath)
+AbstractSettingsPage::AbstractSettingsPage(QWidget *parent) :
+    QWidget(parent)
 {
-}
-
-AbstractSettingsPage::~AbstractSettingsPage()
-{
-}
-
-const QIcon& AbstractSettingsPage::getIcon() const
-{
-    return icon;
-}
-
-const QString& AbstractSettingsPage::getName() const
-{
-    return name;
 }

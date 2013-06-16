@@ -14,29 +14,20 @@
     See the COPYING file for more details.
 */
 
-#ifndef CHATSETTINGSDIALOG_HPP
-#define CHATSETTINGSDIALOG_HPP
+#ifndef CHATSETTINGSDIALOG_HPPp
+#define CHATSETTINGSDIALOG_HPPp
 
 #include "../../Settings/basicsettingsdialog.hpp"
 
-#include <QDialog>
+namespace Chat {
 
-class ChatSettingsDialog : public BasicSettingsDialog
+class SettingsDialog : public BasicSettingsDialog
 {
 public:
-    ChatSettingsDialog(QWidget* parent);
-    static void load();
-
-    static BasicSettingsDialogNotifier settingsNotifier;
-
-private:
-    void buildGui();
-    static void addPages(QStackedWidget* stackedWidget = 0);
-
-    static bool previouslyLoaded;
-
-    static QString sectionName;
+    SettingsDialog(QWidget* parent);
 
 };
 
-#endif // CHATSETTINGSDIALOG_HPP
+} // namespace Chat
+
+#endif // CHATSETTINGSDIALOG_HPPp

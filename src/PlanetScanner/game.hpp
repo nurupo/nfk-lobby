@@ -17,7 +17,11 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <QtCore>
+#include <QByteArray>
+#include <QHash>
+#include <QString>
+
+namespace PlanetScanner {
 
 class Game
 {
@@ -25,6 +29,7 @@ public:
     explicit Game(const QByteArray &serverInfo);
     ~Game();
     enum GameType {UNK = -1, DM = 0, TDM = 2, CTF, RAIL, PRAC = 6, DOM};
+    static const int MAX_GAMETYPE_ID = DOM;
     const QString & getHostname()       const { return hostname; }
     const QString & getMap()            const { return map; }
     enum GameType getGametype()         const { return gametype; }
@@ -36,6 +41,7 @@ public:
     QString getCleanedHostname() const;
     static QString getNameForGametype(GameType gameType);
     static GameType getGametypeForName(const QString &gameType);
+    static const QHash<int, QString>& getGameTypeHash();
 
 private:
     QString hostname;
@@ -55,5 +61,7 @@ private:
 
     static enum GameType parseGameType(const QByteArray &bytes);
 };
+
+} // namespace PlanetScanner
 
 #endif // SERVER_HPP

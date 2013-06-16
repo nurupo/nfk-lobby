@@ -16,6 +16,8 @@
 
 #include "chattabtree.hpp"
 
+namespace Chat {
+
 ChatTabTree::ChatTabTree(QWidget *parent, int startingSize) :
     QTreeWidget(parent)
 {
@@ -26,3 +28,5 @@ QSize ChatTabTree::sizeHint() const
 {
     return QSize(startingSize, startingSize);
 }
+
+} // namespace Chat

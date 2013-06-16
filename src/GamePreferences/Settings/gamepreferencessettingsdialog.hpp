@@ -17,25 +17,17 @@
 #ifndef GAMEPREFERENCESSETTINGSDIALOG_HPP
 #define GAMEPREFERENCESSETTINGSDIALOG_HPP
 
-#include "Settings/basicsettingsdialog.hpp"
+#include "../../Settings/basicsettingsdialog.hpp"
 
-class GamePreferencesSettingsDialog : public BasicSettingsDialog
+namespace GamePreferences {
+
+class SettingsDialog : public BasicSettingsDialog
 {
 public:
-    explicit GamePreferencesSettingsDialog(QWidget* parent);
-    static void load();
-
-    static BasicSettingsDialogNotifier settingsNotifier;
-
-private:
-    void buildGui();
-    static void addPages(QStackedWidget* stackedWidget = 0);
-
-    static bool previouslyLoaded;
-    static QString sectionName;
+    SettingsDialog(QWidget* parent);
 
 };
 
+} // namespace GamePreferences
 
 #endif // GAMEPREFERENCESSETTINGSDIALOG_HPP
-

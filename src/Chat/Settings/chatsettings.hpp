@@ -1,23 +1,54 @@
-/*#ifndef CHATSETTINGS_HPP
+/*
+    Copyright (C) 2013 by Maxim Biro <nurupo.contributions@gmail.com>
+
+    This file is part of NFK Lobby.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    See the COPYING file for more details.
+*/
+
+#ifndef CHATSETTINGS_HPP
 #define CHATSETTINGS_HPP
 
-#include <QObject>
-#include <QString>
-#include <QList>
-#include <QFont>
+#include <QWidget>
 
-class ChatSettings : public QObject
+namespace Chat {
+
+class Settings : public QObject
 {
     Q_OBJECT
 public:
-    static void load(){}
-    static void save();
+    static Settings& getInstance();
+    void load();
+    void save();
+    void executeSettingsDialog(QWidget* parent);
 
-    struct Channel
-    {
-        QString name;
-        QString password;
-    };
+
+    //
+
+    int getServerId() const;
+    void setServerId(int value);
+    bool getAutoConnect() const;
+    void setAutoConnect(bool value);
+    const QString& getNick() const;
+    void setNick(const QString& newNick);
+    const QString& getUsername() const;
+    void setUsername(const QString newUsername);
+    const QString& getQuitMessage() const;
+    void setQuitMessage(const QString& newQuitMessage);
+    bool getAutoIdentify() const;
+    void setAutoIdentify(bool value);
+    const QString& getPassword() const;
+    void setPassword(const QString& newPassword);
+
+    //
 
     struct Server
     {
@@ -26,74 +57,75 @@ public:
         int port;
         QString password;
         QString encoding;
-        int id;
     };
 
-    static int getServerId()                        {return serverId;}
-    static QString getNick()                        {return nick;}
-    static QString getUsername()                    {return username;}
-    static QString getQuitMessage()                 {return quitMessage;}
-    static bool getAutoIdentify()                   {return autoIdentify;}
-    static QString getPassword()                    {return password;}
+    const QList<Server>& getServerList() const;
+    void setServerList(const QList<Server>& newServerList);
 
-    static QList<Server> getServerList()            {return serverList;}
+    //
 
-    static bool getAutojoinChannels()               {return autojoinChannels;}
-    static QList<Channel> getAutojoinChannelList()  {return autojoinChannelList;}
-    static bool getWaitBeforeAutojoining()          {return waitBeforeAutojoining;}
-    static int getTimeToWaitBeforeAutojoining()     {return timeToWaitBeforeAutojoining;}
+    struct Channel
+    {
+        QString name;
+        QString password;
+    };
 
-    static QFont getChatListFont()                  {return chatListFont;}
-    static QFont getChatWindowFont()                {return chatWindowFont;}
-    static QFont getUserListFont()                  {return userListFont;}
+    bool getAutojoinChannels() const;
+    void setAutojoinChannels(bool value);
+    const QList<Channel>& getAutojoinChannelList() const;
+    void setAutojoinChannelList(const QList<Channel>& newChannelList);
+    bool getWaitBeforeAutojoining() const;
+    void setWaitBeforeAutojoining(bool value);
+    int getTimeToWaitBeforeAutojoining() const;
+    void setTimeToWaitBeforeAutojoining(int sec);
 
+    //
 
-    static void setServerId(int serverId)                                           {this->serverId = serverId;}
-    static void setNick(const QString &nick)                                        {this->nick = nick;}
-    static void setUsername(const QString &username)                                {this->username = username;}
-    static void setQuitMessage(const QString &quitMessage)                          {this->quitMessage = quitMessage;}
-    static void setAutoIdentify(bool autoIdentify)                                  {this->autoIdentify = autoIdentify;}
-    static void setPassword(const QString &password)                                {this->password = password;}
-
-    static void setServerList(const QList<Server> &serverList)                      {this->serverList = serverList;}
-
-    static void setAutojoinChannels(bool autojoinChannels)                          {this->autojoinChannels = autojoinChannels;}
-    static void setAutojoinChannelList(const QList<Channel> &autojoinChannelList)   {this->autojoinChannelList = autojoinChannelList;}
-    static void setWaitBeforeAutojoining(bool waitBeforeAutojoining)                {this->waitBeforeAutojoining = waitBeforeAutojoining;}
-    static void setTimeToWaitBeforeAutojoining(int timeToWaitBeforeAutojoining)     {this->timeToWaitBeforeAutojoining = timeToWaitBeforeAutojoining;}
-
-    static void setChatListFont(const QFont &chatListFont)                          {this->chatListFont = chatListFont;}
-    static void setChatWindowFont(const QFont &chatWindowFont)                      {this->chatWindowFont = chatWindowFont;}
-    static void setUserListFont(const QFont &userListFont)                          {this->userListFont = userListFont;}
+    const QFont& getChatListFont() const;
+    void setChatListFont(const QFont& newFont);
+    const QFont& getChatWindowFont() const;
+    void setChatWindowFont(const QFont& newFont);
+    const QFont& getUserListFont() const;
+    void setUserListFont(const QFont& newFont);
 
 private:
-    explicit ChatSettings(QObject *parent = 0);
-    ChatSettings(const ChatSettings &cs);
-    ChatSettings& operator=(const ChatSettings &cs);
+    int serverId;
+    bool autoConnect;
+    QString nick;
+    QString username;
+    QString quitMessage;
+    bool autoIdentify;
+    QString password;
 
-    static int serverId;
-    static QString nick;
-    static QString username;
-    static QString quitMessage;
-    static bool autoIdentify;
-    static QString password;
+    //
 
-    static QList<Server> serverList;
+    QList<Server> serverList;
+    //QList<Server> modifiedServerList;
 
-    static bool autojoinChannels;
-    static QList<Channel> autojoinChannelList;
-    static bool waitBeforeAutojoining;
-    static int timeToWaitBeforeAutojoining;
+    //
 
-    static QFont chatListFont;
-    static QFont chatWindowFont;
-    static QFont userListFont;
+    bool autojoinChannels;
+    QList<Channel> autojoinChannelList;
+    bool waitBeforeAutojoining;
+    int timeToWaitBeforeAutojoining;
+
+    //
+
+    QFont chatListFont;
+    QFont chatWindowFont;
+    QFont userListFont;
+
+
+    bool loaded;
+
+    Settings();
+    Settings(Settings &settings) = delete;
+    Settings& operator=(const Settings&) = delete;
 
 signals:
-    
-public slots:
-    
+    void dataChanged();
 };
 
+} // namespace Chat
+
 #endif // CHATSETTINGS_HPP
-*/

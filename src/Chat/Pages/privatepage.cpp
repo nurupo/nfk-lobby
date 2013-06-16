@@ -16,6 +16,8 @@
 
 #include "privatepage.hpp"
 
+namespace Chat {
+
 PrivatePage::PrivatePage(QTreeWidgetItem* pageTab, QTreeWidget* tabTree) :
     BasicPage(pageTab, tabTree)
 {
@@ -30,7 +32,7 @@ PrivatePage::~PrivatePage()
 {
 }
 
-void PrivatePage::privateMessage(const User &user, const QString &message)
+void PrivatePage::privateMessage(const IrcClient::User &user, const QString &message)
 {
     print(QString("<%1> %2")
           .arg(user.nick)
@@ -39,7 +41,7 @@ void PrivatePage::privateMessage(const User &user, const QString &message)
     );
 }
 
-void PrivatePage::action(const User &sender, const QString &action)
+void PrivatePage::action(const IrcClient::User &sender, const QString &action)
 {
     print(QString("* %1 %2")
           .arg(sender.nick)
@@ -47,3 +49,5 @@ void PrivatePage::action(const User &sender, const QString &action)
           , Action
     );
 }
+
+} // namespace Chat

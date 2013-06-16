@@ -19,6 +19,8 @@
 
 #include <QSortFilterProxyModel>
 
+namespace GamePreferences {
+
 class PreferencesSortingModel : public QSortFilterProxyModel
 {
 public:
@@ -28,5 +30,7 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
     
 };
+
+} // namespace GamePreferences
 
 #endif // PREFERENCESSORTINGMODEL_HPP

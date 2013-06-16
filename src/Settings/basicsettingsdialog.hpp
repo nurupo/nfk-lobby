@@ -17,46 +17,25 @@
 #ifndef BASICSETTINGSDIALOG_HPP
 #define BASICSETTINGSDIALOG_HPP
 
-#include <QDialog>
-#include <QList>
-#include <QListWidget>
 #include "abstractsettingspage.hpp"
 
-class BasicSettingsDialogNotifier : public QObject
-{
-Q_OBJECT
+#include <QDialog>
+#include <QListWidget>
+#include <QStackedWidget>
 
-signals:
-    void updated();
-};
-
-class BasicSettingsDialog : protected QDialog
+class BasicSettingsDialog : public QDialog
 {
 public:
-    explicit BasicSettingsDialog(const QString &sectionName, QWidget* parent);
-    virtual ~BasicSettingsDialog();
-
-    void showDialog();
+    explicit BasicSettingsDialog(QWidget* parent);
+    virtual ~BasicSettingsDialog() = default;
+    void accept();
 
 protected:
-    static QList<AbstractSettingsPage*> pages;
+
     QListWidget* listWidget;
     QStackedWidget* stackedWidget;
 
-    virtual void buildGui() = 0;
-    void buildPagesGui();
-    static void addPage(AbstractSettingsPage* page);
-    static void loadAddedPages(const QString &sectionName);
-    static void removePages();
-
-private:
-    void accept();
-    void apply();
-    void save();
-    void buildBasicGui();
-
-    QString sectionName;
-
+    void addPage(const QString& iconPath, const QString& name, AbstractSettingsPage* page);
 };
 
 #endif // BASICSETTINGSDIALOG_HPP

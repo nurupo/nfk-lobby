@@ -20,6 +20,8 @@
 #include "../../IrcClient/user.hpp"
 #include "basicpage.hpp"
 
+namespace Chat {
+
 class PrivatePage : public BasicPage
 {
     Q_OBJECT
@@ -34,9 +36,11 @@ signals:
     void closeActionTriggered();
 
 public slots:
-    void privateMessage(const User &user, const QString &message);
-    void action(const User &sender, const QString &action);
+    void privateMessage(const IrcClient::User &user, const QString &message);
+    void action(const IrcClient::User &sender, const QString &action);
 
 };
+
+} // namespace Chat
 
 #endif // PRIVATEPAGE_HPP

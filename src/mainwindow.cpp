@@ -25,7 +25,7 @@
 #include <QLabel>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QtCore>
+#include <QSettings>
 #include <QToolBar>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -43,13 +43,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle(name);
     this->setDockNestingEnabled(true);
 
-    PlanetScannerDock* scannerDock = new PlanetScannerDock(this);
+    PlanetScanner::PlanetScannerDock* scannerDock = new PlanetScanner::PlanetScannerDock(this);
     this->addDockWidget(Qt::TopDockWidgetArea, scannerDock);
 
-    ChatDock* chatDock = new ChatDock(this);
+    Chat::ChatDock* chatDock = new Chat::ChatDock(this);
     this->addDockWidget(Qt::TopDockWidgetArea, chatDock);
 
-    GamePreferencesDock* preferencesDock = new GamePreferencesDock(this);
+    GamePreferences::GamePreferencesDock* preferencesDock = new GamePreferences::GamePreferencesDock(this);
     preferencesDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
     this->addDockWidget(Qt::TopDockWidgetArea, preferencesDock);
 

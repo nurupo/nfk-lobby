@@ -14,50 +14,24 @@
     See the COPYING file for more details.
 */
 
-#include "gamepreferencesgeneralpage.hpp"
-#include "gamepreferencespreferencespage.hpp"
+#include "gamepreferencesgeneralsettingspage.hpp"
+#include "gamepreferencespreferencessettingspage.hpp"
 #include "gamepreferencessettingsdialog.hpp"
-#include "gamepreferencestablepage.hpp"
+#include "gamepreferencestablesettingspage.hpp"
 
-BasicSettingsDialogNotifier GamePreferencesSettingsDialog::settingsNotifier;
-bool GamePreferencesSettingsDialog::previouslyLoaded = false;
-QString GamePreferencesSettingsDialog::sectionName = "GamePreferences";
+namespace GamePreferences {
 
-GamePreferencesSettingsDialog::GamePreferencesSettingsDialog(QWidget *parent) :
-    BasicSettingsDialog(sectionName, parent)
+SettingsDialog::SettingsDialog(QWidget* parent) :
+    BasicSettingsDialog(parent)
 {
-    connect(this, &GamePreferencesSettingsDialog::accepted, &GamePreferencesSettingsDialog::settingsNotifier, &BasicSettingsDialogNotifier::updated);
-}
-
-void GamePreferencesSettingsDialog::addPages(QStackedWidget* stackedWidget)
-{
-    addPage(new GamePreferencesGeneralPage(stackedWidget, "General", ":/icons/general.png"));
-    addPage(new GamePreferencesPreferencesPage(stackedWidget, "Preferences", ":/icons/game.png"));
-    addPage(new GamePreferencesTablePage(stackedWidget, "Table", ":/icons/table.png"));
-}
-
-void GamePreferencesSettingsDialog::buildGui()
-{
-    addPages(stackedWidget);
-
     setWindowTitle("Game Preferences - Settings");
 
-    listWidget->setFixedWidth(120);
+    addPage(":/icons/general.png",  "General",      new GeneralSettingsPage(this));
+    addPage(":/icons/game.png",     "Preferences",  new PreferencesSettingsPage(this));
+    addPage(":/icons/table.png",    "Table",        new TableSettingsPage(this));
 
+    listWidget->setFixedWidth(120);
     setMinimumSize(440, 325);
 }
 
-void GamePreferencesSettingsDialog::load()
-{    
-    if (previouslyLoaded) {
-        return;
-    }
-
-    addPages();
-
-    BasicSettingsDialog::loadAddedPages(sectionName);
-
-    removePages();
-
-    previouslyLoaded = true;
-}
+} // namespace GamePreferences

@@ -16,6 +16,8 @@
 
 #include "usertree.hpp"
 
+namespace Chat {
+
 UserTree::UserTree(QWidget* parent, int startingSize) :
     QTreeView(parent)
 {
@@ -50,3 +52,5 @@ void UserTree::showContextMenu(const QPoint &pos)
     }
 
 }
+
+} // namespace Chat

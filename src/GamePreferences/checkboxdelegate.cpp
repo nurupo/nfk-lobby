@@ -19,6 +19,8 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
+namespace GamePreferences {
+
 CheckBoxDelegate::CheckBoxDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
 {
@@ -55,3 +57,5 @@ void CheckBoxDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionV
 {
     editor->setGeometry(option.rect);
 }
+
+} // namespace GamePreferences

@@ -29,6 +29,8 @@
 #include <QTableView>
 #include <QTextEdit>
 
+namespace GamePreferences {
+
 class GamePreferencesDock : public QDockWidget
 {
     Q_OBJECT
@@ -37,7 +39,7 @@ public:
     ~GamePreferencesDock();
 
 private:
-    IrcClient* ircClient;
+    IrcClient::IrcClient* ircClient;
     QTableView* preferencesView;
     QStandardItemModel* preferencesModel;
     PreferencesSortingModel* sortModel;
@@ -63,18 +65,20 @@ private slots:
     void disconnectFromServer();
     void onConnected();
     void onDisconnected();
-    void onChannelJoined(const Channel &channel);
-    void onChannelMessageReceived(const User& sender, const QString& message);
-    void onPrivateMessageReceived(const User& sender, const QString& message);
+    void onChannelJoined(const IrcClient::Channel &channel);
+    void onChannelMessageReceived(const IrcClient::User& sender, const QString& message);
+    void onPrivateMessageReceived(const IrcClient::User& sender, const QString& message);
     void onOurGameTypeModified(QStandardItem* item);
-    void onUserParted(const User &user);
-    void onUserQuit(const User &user);
-    void onUserKicked(const User& sender, const QString& message, const QString& recipient);
-    void onUserChangedNick(const User& user, const QString& newNick);
+    void onUserParted(const IrcClient::User &user);
+    void onUserQuit(const IrcClient::User &user);
+    void onUserKicked(const IrcClient::User& sender, const QString& message, const QString& recipient);
+    void onUserChangedNick(const IrcClient::User& user, const QString& newNick);
     void onNickAlreadyInUse();
     void applySettings();
     void showSettingsDialog();
 
 };
+
+} // namespace GamePreferences
 
 #endif // GAMEPREFERENCESDOCK_HPP

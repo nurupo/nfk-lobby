@@ -1,6 +1,3 @@
-#include "../Settings/chatsettingsdialog.hpp"
-#include "../Settings/chatsettingsfontpage.hpp"
-#include "basicpage.hpp"
 /*
     Copyright (C) 2013 by Maxim Biro <nurupo.contributions@gmail.com>
 
@@ -17,10 +14,14 @@
     See the COPYING file for more details.
 */
 
+#include "../Settings/chatsettings.hpp"
+#include "basicpage.hpp"
 
 #include <QRegularExpression>
 #include <QScrollBar>
 #include <QTime>
+
+namespace Chat {
 
 BasicPage::BasicPage(QTreeWidgetItem* pageTab, QTreeWidget* tabTree) :
     QMainWindow(0)
@@ -55,7 +56,7 @@ BasicPage::BasicPage(QTreeWidgetItem* pageTab, QTreeWidget* tabTree) :
     lastMessageType = None;
     scrollDown = true;
     disabled = true;
-    connect(&ChatSettingsDialog::settingsNotifier, &BasicSettingsDialogNotifier::updated, this, &BasicPage::updateFont);
+    connect(&Settings::getInstance(), &Settings::dataChanged, this, &BasicPage::updateFont);
 }
 
 BasicPage::~BasicPage()
@@ -69,7 +70,7 @@ QString BasicPage::getTime()
 
 void BasicPage::eraseControlCharacters(QString& string)
 {
-    /*TODO: replace characters with their unicode representation*/
+    /*TODO: replace characters with their unicode code representation*/
     string.replace(QRegularExpression("(\\((\\d)?\\d)?(\\,(\\d)?\\d)?)|\\|\\|\\|\\"), QString(""));
 }
 
@@ -194,7 +195,9 @@ bool BasicPage::replaceActions(QAction* replacee, QAction* replacement)
 
 void BasicPage::updateFont()
 {
-    QFont font = ChatSettingsFontPage::getChatWindowFont();
+    QFont font = Settings::getInstance().getChatWindowFont();
     font.setStyleHint(QFont::Monospace);
     textBrowser->setFont(font);
 }
+
+} // namespace Chat

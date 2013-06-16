@@ -17,6 +17,8 @@
 #include "../chatdock.hpp"
 #include "serverpage.hpp"
 
+namespace Chat {
+
 ServerPage::ServerPage(QTreeWidgetItem* pageTab, QTreeWidget* tabTree) :
     BasicPage(pageTab, tabTree)
 {
@@ -39,7 +41,7 @@ void ServerPage::serverResponse(const QString &response)
     );
 }
 
-void ServerPage::notice(const User &sender, const QString &notice)
+void ServerPage::notice(const IrcClient::User &sender, const QString &notice)
 {
     print(QString("[%1] %2")
           .arg(sender.nick)
@@ -48,7 +50,7 @@ void ServerPage::notice(const User &sender, const QString &notice)
     );
 }
 
-void ServerPage::ctcpRequest(const QString &target, const User &sender, const QString &request)
+void ServerPage::ctcpRequest(const QString &target, const IrcClient::User &sender, const QString &request)
 {
     if (sender.nick == ChatDock::ircClient->getUs().nick) {
         print(QString("Sent CTCP-%1 request to %2")
@@ -67,7 +69,7 @@ void ServerPage::ctcpRequest(const QString &target, const User &sender, const QS
     }
 }
 
-void ServerPage::ctcpReply(const QString &target, const User &sender, const QString &request, const QString &message)
+void ServerPage::ctcpReply(const QString &target, const IrcClient::User &sender, const QString &request, const QString &message)
 {
     if (sender.nick == ChatDock::ircClient->getUs().nick) {
         print(QString("Sent CTCP-%1 reply to %2: %3")
@@ -88,7 +90,7 @@ void ServerPage::ctcpReply(const QString &target, const User &sender, const QStr
     }
 }
 
-void ServerPage::userModeChanged(const QString &target, const User &sender, const QString &mode)
+void ServerPage::userModeChanged(const QString &target, const IrcClient::User &sender, const QString &mode)
 {
     print(QString("*** %1 sets mode %2 to %3")
           .arg(sender.nick)
@@ -111,7 +113,7 @@ void ServerPage::connecting(const QString &address, int port)
 
 void ServerPage::quit(const QString &message)
 {
-    const User& us = ChatDock::ircClient->getUs();
+    const IrcClient::User& us = ChatDock::ircClient->getUs();
     print(QString("*** %1 (%2@%3) has quit (%4)")
           .arg(us.nick)
           .arg(us.username)
@@ -128,3 +130,4 @@ void ServerPage::disconnected()
     replaceActions(disconnectAction, connectAction);
 }
 
+} // namespace Chat

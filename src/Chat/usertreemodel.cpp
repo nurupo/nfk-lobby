@@ -21,6 +21,8 @@
 #include <QDebug>
 #include <QStringList>
 
+namespace Chat {
+
 UserTreeModel::UserTreeModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
@@ -382,3 +384,5 @@ void UserTreeModel::addUser(const QString &nick, bool op, bool voice)
     setData(newUser, QVariant(nick));
     updateBranch(newUser.parent());
 }
+
+} // namespace Chat

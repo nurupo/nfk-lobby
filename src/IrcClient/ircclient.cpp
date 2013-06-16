@@ -20,6 +20,8 @@
 #include <QHashIterator>
 #include <QStringList>
 
+namespace IrcClient {
+
 const QString IrcClient::ChannelPrefixes = "#+!&";
 
 IrcClient::IrcClient() :
@@ -595,3 +597,5 @@ void IrcClient::removeUser(const QString &nick)
         iterator.next().value()->removeUser(nick);
     }
 }
+
+} // namespace IrcClient

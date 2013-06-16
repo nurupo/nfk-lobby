@@ -23,6 +23,8 @@
 #include <QTcpSocket>
 #include <QTextCodec>
 
+namespace IrcClient {
+
 class IrcClient : public QObject
 {
     Q_OBJECT
@@ -109,5 +111,7 @@ private slots:
     void readServerMessages();
     
 };
+
+} // namespace IrcClient
 
 #endif // IRCCLIENT_HPP

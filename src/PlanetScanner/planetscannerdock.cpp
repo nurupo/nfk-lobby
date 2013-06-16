@@ -15,10 +15,11 @@
 */
 
 #include "planetscannerdock.hpp"
-#include "planetscannersettingsdialog.hpp"
+#include "Settings\planetscannersettings.hpp"
 
 #include <QAction>
 #include <QClipboard>
+#include <QDir>
 #include <QFile>
 #include <QGuiApplication>
 #include <QHeaderView>
@@ -30,6 +31,8 @@
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
 #include <QVBoxLayout>
+
+namespace PlanetScanner {
 
 PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
 {
@@ -85,8 +88,11 @@ PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
     connect(autoRefreshTimer, SIGNAL(timeout()), this, SLOT(refreshPlanets()));
 
     contextMenuShown = false;
-    resizeOnRefreshDisabled = false;
-    load();
+
+    Settings& settings = Settings::getInstance();
+    connect(&settings, &Settings::dataChanged, this, &PlanetScannerDock::applyChangedSettings);
+    settings.load();
+    applyChangedSettings();
 }
 
 PlanetScannerDock::~PlanetScannerDock()
@@ -111,9 +117,9 @@ QStandardItem* PlanetScannerDock::getPlanetTreeWidgetItem(const Planet &planet)
 
 void PlanetScannerDock::refreshPlanets()
 {
-    if (contextMenuShown) {
+    /*if (contextMenuShown) {
         return;
-    }
+    }*/
     for (int i = 0; i < planetList.size(); i ++) {
         planetList.at(i)->requestInfo();
     }
@@ -148,7 +154,7 @@ void PlanetScannerDock::addGame(const Planet &planet, const QList<Game> &games)
 
 void inline PlanetScannerDock::resizeColumnsToContents()
 {
-    if (!resizeOnRefreshDisabled) {
+    if (!Settings::getInstance().getResizeOnRefreshDisabled()) {
         planetTreeView->header()->resizeSections(QHeaderView::ResizeToContents);
     }
 }
@@ -163,7 +169,7 @@ void PlanetScannerDock::setPlanetConnectionError(const Planet &planet, QAbstract
     //no need to reset the error and resize the treeview if the error is the same
     if (errorItem->text().compare(error)) {
         errorItem->setText(error);
-        if (!resizeOnRefreshDisabled) {
+        if (!Settings::getInstance().getResizeOnRefreshDisabled()) {
             planetTreeView->resizeColumnToContents(1);
         }
     }
@@ -179,70 +185,7 @@ void PlanetScannerDock::clearPlanetConnectionError(const Planet &planet)
 
 void PlanetScannerDock::showSettingsDialog()
 {
-    PlanetScannerSettingsDialog settings(this);
-    if (settings.exec() == QDialog::Rejected) {
-        return;
-    }
-    if (settings.isPlanetListModified()) {
-        foreach (Planet* planet, planetList) {
-            bool found = false;
-            QTreeWidgetItemIterator it(settings.planetTree);
-            while (*it) {
-                if (!planet->getAddress().compare((*it)->text(0))
-                        && !QString::number(planet->getPort()).compare((*it)->text(1))) {
-                    delete (*it);
-                    found = true;
-                    break;
-                }
-                it++;
-            }
-            if (!found) {
-                removePlanet(planet);
-                delete planet;
-            }
-        }
-        QTreeWidgetItemIterator it(settings.planetTree);
-        while (*it) {
-            //don't add entries with non numerical values for port
-            bool ok;
-            int port = (*it)->text(1).toInt(&ok);
-            if (ok) {
-                addPlanet(new Planet((*it)->text(0), port));
-            }
-            it++;
-        }
-    }
-    planetTreeProxyModel->setGameTypeFilter(Game::DM, settings.filterGametypeDmCheckbox->isChecked());
-    planetTreeProxyModel->setGameTypeFilter(Game::TDM, settings.filterGametypeTdmCheckbox->isChecked());
-    planetTreeProxyModel->setGameTypeFilter(Game::CTF, settings.filterGametypeCtfCheckbox->isChecked());
-    planetTreeProxyModel->setGameTypeFilter(Game::RAIL, settings.filterGametypeRailCheckbox->isChecked());
-    planetTreeProxyModel->setGameTypeFilter(Game::PRAC, settings.filterGametypePracCheckbox->isChecked());
-    planetTreeProxyModel->setGameTypeFilter(Game::DOM, settings.filterGametypeDomCheckbox->isChecked());
-    planetTreeProxyModel->setHideOnFullFilter(settings.filterPlayersFullCheckbox->isChecked());
-    planetTreeProxyModel->setHideOnEmptyFilter(settings.filterPlayersEmptyCheckbox->isChecked());
-    if (settings.miscRefreshCheckbox->isChecked()) {
-        if (settings.miscRefreshSpinbox->value()*1000 != getAutoRefreshInterval()) {
-            autoRefreshTimer->start(settings.miscRefreshSpinbox->value()*1000);
-        }
-    } else {
-        if (autoRefreshTimer->isActive()) {
-            autoRefreshTimer->stop();
-        }
-    }
-    for (int i = 0; i < 5; i ++) {
-        bool wasHidden = planetTreeView->isColumnHidden(i);
-        planetTreeView->setColumnHidden(i, settings.tableHideColumnCheckbox[i]->isChecked());
-        if (!settings.tableHideColumnCheckbox[i]->isChecked()
-                && wasHidden
-                && i != 0) {
-            planetTreeView->resizeColumnToContents(i-1);
-        }
-    }
-    resizeOnRefreshDisabled = settings.tableResizeDisableOnRefreshCheckbox->isChecked();
-    gamePath = settings.gamePathEdit->text();
-    gameCommandlineArguments = settings.gameCommandlineEdit->text();
-    refreshPlanets();
-    save();
+    Settings::getInstance().executeSettingsDialog(this);
 }
 
 void PlanetScannerDock::addPlanet(Planet* planet)
@@ -264,7 +207,8 @@ void PlanetScannerDock::addPlanet(Planet* planet)
 void PlanetScannerDock::removePlanet(Planet* planet)
 {
     planetList.removeAt(planetList.indexOf(planet));
-    delete getPlanetTreeWidgetItem(*planet);
+    QStandardItem* item = getPlanetTreeWidgetItem(*planet);
+    planetTreeModel->removeRow(item->row());
 }
 
 void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
@@ -274,7 +218,7 @@ void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
         error("Selected planet instead of a game.");
         return;
     }
-    QString arguments(gameCommandlineArguments);
+    QString arguments = Settings::getInstance().getCommandlineArguments();
     arguments += " " + additionalCommandlineArguments;
     if (game->state() != QProcess::NotRunning) {
         game->kill();
@@ -300,7 +244,7 @@ void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
     QString newPort = fullAddress[1];
     nfksetup.setValue("address", newAddress);
     nfksetup.setValue("port", newPort);
-    game->start(gamePath, arguments.split(" "));
+    game->start(Settings::getInstance().getGamePath(), arguments.split(" "));
     game->waitForStarted(10 * 1000);
     nfksetup.setValue("address", oldAddress);
     nfksetup.setValue("port", oldPort);
@@ -327,6 +271,7 @@ void PlanetScannerDock::connectAsSpectatorSelected()
 
 QString PlanetScannerDock::getBasenfkPath()
 {
+    QString gamePath = Settings::getInstance().getGamePath();
     return gamePath.left(gamePath.lastIndexOf('/')) + "/basenfk/";
 }
 
@@ -352,100 +297,6 @@ void PlanetScannerDock::copySelected()
     QGuiApplication::clipboard()->setText(copy);
 }
 
-void PlanetScannerDock::save()
-{
-    QSettings set("settings.ini", QSettings::IniFormat);
-    set.beginGroup("PlanetScanner");
-    set.beginGroup("Game");
-    set.setValue("path", gamePath);
-    set.setValue("commandlineArguments", gameCommandlineArguments);
-    set.endGroup();
-    set.beginWriteArray("Planet");
-    for (int i = 0; i < planetList.size(); i ++) {
-        set.setArrayIndex(i);
-        set.setValue("address", planetList.at(i)->getAddress());
-        set.setValue("port", planetList.at(i)->getPort());
-    }
-    set.endArray();
-    set.beginGroup("Filter");
-    set.beginWriteArray("Gametype");
-    for (int i = 0; i < 8; i ++) {
-        set.setArrayIndex(i);
-        set.setValue("hide", planetTreeProxyModel->getGameTypeFilter()[i]);
-    }
-    set.endArray();
-    set.beginGroup("PlayerCount");
-    set.setValue("hideFull", planetTreeProxyModel->getHideOnFullFilter());
-    set.setValue("hideEmpty", planetTreeProxyModel->getHideOnEmptyFilter());
-    set.endGroup();
-    set.endGroup();
-    set.beginGroup("Table");
-    set.beginWriteArray("Column");
-    for (int i = 0; i < planetTreeModel->columnCount(); i++) {
-        set.setArrayIndex(i);
-        set.setValue("hide", isColumnHidden(i));
-    }
-    set.endArray();
-    set.setValue("disableResize", resizeOnRefreshDisabled);
-    set.endGroup();
-    set.beginGroup("Misc");
-    set.setValue("autoRefresh", autoRefreshTimer->isActive());
-    set.setValue("autoRefreshInterval", autoRefreshTimer->interval()/1000);
-    set.endGroup();
-    set.endGroup();
-}
-
-void PlanetScannerDock::load()
-{
-    QSettings set("settings.ini", QSettings::IniFormat);
-    set.beginGroup("PlanetScanner");
-    set.beginGroup("Game");
-    gamePath = set.value("path", "").toString();
-    gameCommandlineArguments = set.value("commandlineArguments", "").toString();
-    set.endGroup();
-    int planetSize = set.beginReadArray("Planet");
-    for (int i = 0; i < planetSize; i ++) {
-        set.setArrayIndex(i);
-        QString address = set.value("address", "").toString();
-        bool ok;
-        int port = set.value("port", "").toInt(&ok);
-        if (!ok) {
-            continue;
-        }
-        addPlanet(new Planet(address, port));
-    }
-    set.endArray();
-    set.beginGroup("Filter");
-    set.beginReadArray("Gametype");
-    for (int i = 0; i < 8; i ++) {
-        set.setArrayIndex(i);
-        planetTreeProxyModel->setGameTypeFilter(i, set.value("hide", false).toBool());
-    }
-    set.endArray();
-    set.beginGroup("PlayerCount");
-    planetTreeProxyModel->setHideOnFullFilter(set.value("hideFull", false).toBool());
-    planetTreeProxyModel->setHideOnEmptyFilter(set.value("hideEmpty", false).toBool());
-    set.endGroup();
-    set.endGroup();
-    set.beginGroup("Table");
-    int planetTreeColumns = set.beginReadArray("Column");
-    for (int i = 0; i < planetTreeColumns; i++) {
-        set.setArrayIndex(i);
-        if (set.value("hide", false).toBool()) {
-            planetTreeView->hideColumn(i);
-        }
-    }
-    set.endArray();
-    resizeOnRefreshDisabled = set.value("disableResize", false).toBool();
-    set.endGroup();
-    set.beginGroup("Misc");
-    if (set.value("autoRefresh", false).toBool()) {
-        autoRefreshTimer->start(set.value("autoRefreshInterval", 30).toInt()*1000);
-    }
-    set.endGroup();
-    set.endGroup();
-}
-
 void PlanetScannerDock::error(const QString &errorText)
 {
     QMessageBox::critical(this, QString("Error"), errorText, QMessageBox::Ok);
@@ -468,3 +319,50 @@ void PlanetScannerDock::showContextMenu(const QPoint &pos)
     }
     contextMenuShown = false;
 }
+
+void PlanetScannerDock::applyChangedSettings()
+{
+    const Settings& settings = Settings::getInstance();
+    QList<Settings::PlanetAddress> planets = settings.getPlanets();
+    //removing planets from planetList that are not presentes in settings
+    //and removing planets in settings that are already presented in the PlanetList
+    for (Planet* p1 : planetList) {
+        int i;
+        bool found = false;
+        for (i = 0; i < planets.size(); i ++) {
+            found = p1->getAddress() == planets.at(i).address && p1->getPort() == planets.at(i).port;
+            if (found) {
+                break;
+            }
+        }
+        if (found) {
+            planets.removeAt(i);
+        } else {
+            removePlanet(p1);
+            delete p1;
+        }
+    }
+    //planets now contains all new planets
+    for (const Settings::PlanetAddress& p2 : planets) {
+        addPlanet(new Planet(p2.address, p2.port));
+    }
+
+    const QList<bool>& hideColumn = settings.getHideColumn();
+    for (int i = 0; i < hideColumn.size(); i ++) {
+        bool wasHidden = planetTreeView->isColumnHidden(i);
+        planetTreeView->setColumnHidden(i, hideColumn.at(i));
+        if (!hideColumn.at(i) && wasHidden && i != 0) {
+            planetTreeView->resizeColumnToContents(i-1);
+        }
+    }
+
+    if (settings.getAutoRefresh()) {
+        autoRefreshTimer->start(settings.getAutoRefreshIntervalSec() * 1000);
+    } else {
+        autoRefreshTimer->stop();
+    }
+
+    planetTreeProxyModel->invalidate();
+}
+
+} // namespace PlanetScanner

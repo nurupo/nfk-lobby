@@ -19,6 +19,8 @@
 
 #include <QLabel>
 
+namespace Chat {
+
 class TopicLabel : public QLabel
 {
 public:
@@ -33,5 +35,7 @@ private:
     QString plainText;
     QString UrlText;
 };
+
+} // namespace Chat
 
 #endif // TOPICLABEL_HPP

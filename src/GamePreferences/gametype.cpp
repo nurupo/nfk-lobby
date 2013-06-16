@@ -16,6 +16,8 @@
 
 #include "gametype.hpp"
 
+namespace GamePreferences {
+
 QStringList GameType::gameTypeNames = QStringList() << "DM" << "TDM" << "CTF" << "RAIL" << "PRAC" << "DOM" << "TRIX";
 
 GameType::GameType()
@@ -31,3 +33,5 @@ QString GameType::getName(int gameType)
 {
     return gameTypeNames[gameType];
 }
+
+} // namespace GamePreferences

@@ -14,8 +14,8 @@
     See the COPYING file for more details.
 */
 
-#ifndef CHATSETTINGSFONTPAGE_HPP
-#define CHATSETTINGSFONTPAGE_HPP
+#ifndef CHATFONTSETTINGSPAGE_HPP
+#define CHATFONTSETTINGSPAGE_HPP
 
 #include "../../Settings/abstractsettingspage.hpp"
 
@@ -24,24 +24,18 @@
 #include <QLineEdit>
 #include <QString>
 
-class ChatSettingsFontPage : public AbstractSettingsPage
+namespace Chat {
+
+class FontSettingsPage : public AbstractSettingsPage
 {
     Q_OBJECT
 public:
-    explicit ChatSettingsFontPage(QStackedWidget *parent, const QString &pageName, const QString &iconPath);
-
-    static QFont getChatListFont()                  {return chatListFont;}
-    static QFont getChatWindowFont()                {return chatWindowFont;}
-    static QFont getUserListFont()                  {return userListFont;}
-
-private:
-    void load(QSettings& settings);
-    void save(QSettings& settings);
-    void apply();
+    FontSettingsPage(QWidget* parent);
+    void applyChanges();
     void buildGui();
     void setGui();
 
-
+private:
     QLineEdit* chatListEdit;
     QLineEdit* chatWindowEdit;
     QLineEdit* userListEdit;
@@ -50,10 +44,6 @@ private:
     void setEditWithFont(QLineEdit* edit, const QFont& font);
     void setEditWithFont(QLineEdit* edit);
 
-    static QFont chatListFont;
-    static QFont chatWindowFont;
-    static QFont userListFont;
-
 private slots:
     void chatListButtonClicked();
     void chatWindowButtonClicked();
@@ -61,4 +51,6 @@ private slots:
 
 };
 
-#endif // CHATSETTINGSFONTPAGE_HPP
+} // namespace Chat
+
+#endif // CHATFONTSETTINGSPAGE_HPP

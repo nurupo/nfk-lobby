@@ -19,6 +19,8 @@
 
 #include <QTreeWidget>
 
+namespace Chat {
+
 class ChatTabTree : public QTreeWidget
 {
 public:
@@ -29,5 +31,7 @@ private:
     int startingSize;
 
 };
+
+} // namespace Chat
 
 #endif // CHATTABTREE_HPP

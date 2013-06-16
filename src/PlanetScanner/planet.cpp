@@ -16,6 +16,8 @@
 
 #include "planet.hpp"
 
+namespace PlanetScanner {
+
 Planet::Planet(const QString& address, const int port) : address(address), port(port), sock(new QTcpSocket())
 {
     errorState = false;
@@ -102,3 +104,5 @@ void Planet::parseServerResponse()
         /*unknown response*/
     }
 }
+
+} // namespace PlanetScanner

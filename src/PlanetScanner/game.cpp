@@ -16,6 +16,10 @@
 
 #include "game.hpp"
 
+#include <QRegularExpression>
+
+namespace PlanetScanner {
+
 //FIXME: use initializer-list that will be introduced in Qt 5.1.0 https://bugreports.qt-project.org/browse/QTBUG-31094
 //QHash<int, QString> Game::gameNames {{0, "DM"}, {2, "TDM"}, {3, "CTF"}, {4, "RAIL"}, {6, "PRAC"}, {7, "DOM"}};
 QHash<int, QString> Game::gameNames = Game::initializeGameNames();
@@ -30,6 +34,11 @@ QHash<int, QString> Game::initializeGameNames()
     hash[6] = "PRAC";
     hash[7] = "DOM";
     return hash;
+}
+
+const QHash<int, QString>& Game::getGameTypeHash()
+{
+    return gameNames;
 }
 
 Game::Game(const QByteArray &serverInfo)
@@ -118,3 +127,5 @@ QString Game::getCleanedHostname() const
     QString cleanedHostname(getHostname());
     return cleanedHostname.replace(QRegularExpression("\\^[^\\^]"), "");
 }
+
+} // namespace PlanetScanner

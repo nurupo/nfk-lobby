@@ -20,6 +20,8 @@
 #include <QStyledItemDelegate>
 #include <QTableView>
 
+namespace GamePreferences {
+
 class CheckBoxDelegate : public QStyledItemDelegate
 {
 public:
@@ -32,6 +34,9 @@ public:
 
 private:
     QTableView* tableView;
+
 };
+
+} // namespace GamePreferences
 
 #endif // CHECKBOXDELEGATE_HPP

@@ -14,52 +14,30 @@
     See the COPYING file for more details.
 */
 
-#include "chatsettingschannelpage.hpp"
 #include "chatsettingsdialog.hpp"
-#include "chatsettingsfontpage.hpp"
-#include "chatsettingsgeneralpage.hpp"
-#include "chatsettingsserverpage.hpp"
+#include "chatgeneralsettingspage.hpp"
+#include "chatserversettingspage.hpp"
+#include "chatchannelsettingspage.hpp"
+#include "chatfontsettingspage.hpp"
 
-BasicSettingsDialogNotifier ChatSettingsDialog::settingsNotifier;
-bool ChatSettingsDialog::previouslyLoaded = false;
-QString ChatSettingsDialog::sectionName = "Chat";
+#include <QStandardItemModel>
 
-ChatSettingsDialog::ChatSettingsDialog(QWidget *parent)
-    : BasicSettingsDialog(sectionName, parent)
+namespace Chat {
+
+SettingsDialog::SettingsDialog(QWidget* parent) :
+    BasicSettingsDialog(parent)
 {
-    connect(this, &ChatSettingsDialog::accepted, &ChatSettingsDialog::settingsNotifier, &BasicSettingsDialogNotifier::updated);
-}
-
-void ChatSettingsDialog::addPages(QStackedWidget* stackedWidget)
-{
-    addPage(new ChatSettingsGeneralPage(stackedWidget, "General", ":/icons/general.png"));
-    addPage(new ChatSettingsServerPage(stackedWidget, "Server", ":/icons/server.png"));
-    addPage(new ChatSettingsChannelPage(stackedWidget, "Channel", ":/icons/channel.png"));
-    addPage(new ChatSettingsFontPage(stackedWidget, "Font", ":/icons/font.png"));
-}
-
-void ChatSettingsDialog::buildGui()
-{
-    addPages(stackedWidget);
-
     setWindowTitle("Chat - Settings");
 
+    QStandardItemModel* serverListModel = new QStandardItemModel(this);
+
+    addPage(":/icons/general.png",  "General",  new GeneralSettingsPage(this, serverListModel));
+    addPage(":/icons/server.png",   "Server",   new ServerSettingsPage(this, serverListModel));
+    addPage(":/icons/channel.png",  "Channel",  new ChannelSettingsPage(this));
+    addPage(":/icons/font.png",     "Font",     new FontSettingsPage(this));
+
     listWidget->setFixedWidth(100);
-
-    setMinimumSize(440, 325);
+    setMinimumSize(440, 360);
 }
 
-void ChatSettingsDialog::load()
-{    
-    if (previouslyLoaded) {
-        return;
-    }
-
-    addPages();
-
-    BasicSettingsDialog::loadAddedPages(sectionName);
-
-    removePages();
-
-    previouslyLoaded = true;
-}
+} // namespace Chat

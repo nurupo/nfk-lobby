@@ -23,6 +23,8 @@
 #include <QDateTime>
 #include <QString>
 
+namespace IrcClient {
+
 class Channel : public QObject
 {
     Q_OBJECT
@@ -75,5 +77,7 @@ signals:
     void kick(const User& sender, const QString& message, const QString& recipient);
 
 };
+
+} // namespace IrcClient
 
 #endif // CHANNEL_HPP

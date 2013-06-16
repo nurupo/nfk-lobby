@@ -18,6 +18,8 @@
 
 #include <QStringList>
 
+namespace Chat {
+
 UserItem::UserItem(const QString &data, UserItem *parent)
 {
     parentItem = parent;
@@ -94,3 +96,5 @@ void UserItem::setData(const QString &data)
 {
     itemData = data;
 }
+
+} // namespace Chat

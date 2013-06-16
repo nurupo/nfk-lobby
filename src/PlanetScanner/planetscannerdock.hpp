@@ -19,13 +19,17 @@
 
 #include "game.hpp"
 #include "planet.hpp"
-#include "planettreesortfilterproxymodel.hpp"
 #include "planettreemodel.hpp"
+#include "planettreesortfilterproxymodel.hpp"
 
 #include <QDockWidget>
+#include <QMenu>
+#include <QProcess>
 #include <QStandardItemModel>
 #include <QTimer>
-#include <QTreeWidget>
+#include <QTreeView>
+
+namespace PlanetScanner {
 
 class PlanetScannerDock : public QDockWidget
 {
@@ -33,15 +37,6 @@ class PlanetScannerDock : public QDockWidget
 public:
     PlanetScannerDock(QWidget* parent);
     ~PlanetScannerDock();
-    QList<Planet*> & getPlanetList() {return planetList;}
-    bool isAutoRefrshActive() const {return autoRefreshTimer->isActive();}
-    int getAutoRefreshInterval() const {return autoRefreshTimer->interval();}
-    const PlanetTreeSortFilterProxyModel* getPlanetTreeProxyModel() const {return planetTreeProxyModel;}
-    bool isColumnHidden(int i) const {return planetTreeView->isColumnHidden(i);}
-    bool isResizeOnRefreshDisabled() const {return resizeOnRefreshDisabled;}
-    const QString & getGamePath() const {return gamePath;}
-    const QString & getGameCommandlineArguments() const {return gameCommandlineArguments;}
-    void addPlanet(Planet* planet);
 
 private:
     QProcess* game;
@@ -49,20 +44,17 @@ private:
     QMenu* planetContextMenu;
     bool contextMenuShown;
     QTimer* autoRefreshTimer;
-    bool resizeOnRefreshDisabled;
-    QString gamePath;
-    QString gameCommandlineArguments;
     QList<Planet*> planetList;
     QTreeView* planetTreeView;
     PlanetTreeModel* planetTreeModel;
     PlanetTreeSortFilterProxyModel* planetTreeProxyModel;
+
+    void addPlanet(Planet* planet);
     void removePlanet(Planet* planet);
     QStandardItem* getPlanetTreeWidgetItem(const Planet &planet);
     void resizeColumnsToContents();
     void startGame(const QString &additionalCommandlineArguments);
     QString getBasenfkPath();
-    void save();
-    void load();
     void error(const QString &errorText);
 
 private slots:
@@ -75,6 +67,9 @@ private slots:
     void connectAsSpectatorSelected();
     void copySelected();
     void showContextMenu(const QPoint &pos);
+    void applyChangedSettings();
 };
+
+} // namespace PlanetScanner
 
 #endif // PLANETSCANNERDOCK_HPP

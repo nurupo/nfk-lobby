@@ -22,6 +22,8 @@
 #include <QTextBrowser>
 #include <QTreeWidgetItem>
 
+namespace Chat {
+
 class BasicPage : public QMainWindow
 {
     Q_OBJECT
@@ -68,5 +70,7 @@ private slots:
     void updateFont();
 
 };
+
+} // namespace Chat
 
 #endif // BASICPAGE_HPP

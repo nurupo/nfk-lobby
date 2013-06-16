@@ -17,13 +17,9 @@
 #include "chatdock.hpp"
 #include "chattabtree.hpp"
 #include "mainwindow.hpp"
-#include "Settings/chatsettingschannelpage.hpp"
-#include "Settings/chatsettingsdialog.hpp"
-#include "Settings/chatsettingsfontpage.hpp"
-#include "Settings/chatsettingsgeneralpage.hpp"
-#include "Settings/chatsettingsserverpage.hpp"
-
+#include "Settings/chatsettings.hpp"
 #include "usertree.hpp"
+
 #include <QAction>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -36,13 +32,15 @@
 #include <QToolBar>
 #include <QTreeWidget>
 
-IrcClient* ChatDock::ircClient = new IrcClient();
+namespace Chat {
+
+IrcClient::IrcClient* ChatDock::ircClient = new IrcClient::IrcClient();
 
 ChatDock::ChatDock(QWidget* parent) :
     QDockWidget(parent)
 {
-    ChatSettingsDialog::load();
-    connect(&ChatSettingsDialog::settingsNotifier, &BasicSettingsDialogNotifier::updated, this, &ChatDock::applySettings);
+    Settings::getInstance().load();
+    connect(&Settings::getInstance(), &Settings::dataChanged, this, &ChatDock::applySettings);
 
     const QString dockName = "Chat";
     setObjectName(dockName);
@@ -155,22 +153,22 @@ ChatDock::ChatDock(QWidget* parent) :
 
     ircClient->setVersion(QString("%1 %2 by %3; build date: %4").arg(MainWindow::name).arg(MainWindow::version).arg(MainWindow::author).arg(MainWindow::buildDate));
 
-    connect(ircClient, &IrcClient::notice,             serverPage, &ServerPage::notice);
-    connect(ircClient, &IrcClient::serverResponse,     serverPage, &ServerPage::serverResponse);
-    connect(ircClient, &IrcClient::ctcpRequest,        serverPage, &ServerPage::ctcpRequest);
-    connect(ircClient, &IrcClient::ctcpReply,          serverPage, &ServerPage::ctcpReply);
-    connect(ircClient, &IrcClient::quit,               serverPage, &ServerPage::quit);
-    connect(ircClient, &IrcClient::connecting,         serverPage, &ServerPage::connecting);
-    connect(ircClient, &IrcClient::disconnected,       serverPage, &ServerPage::disconnected);
-    connect(ircClient, &IrcClient::userModeChanged,    serverPage, &ServerPage::userModeChanged);
-    connect(ircClient, &IrcClient::join,               this,       &ChatDock::joinedChannel);
-    connect(ircClient, &IrcClient::connected,          this,       &ChatDock::connected);
-    connect(ircClient, &IrcClient::privateMessage,     this,       &ChatDock::routePrivateMessage);
-    connect(ircClient, &IrcClient::action,             this,       &ChatDock::routePrivateAction);
-    connect(ircClient, &IrcClient::nickChange,         nickLabel,  &QLabel::setText);
-    connect(ircClient, &IrcClient::connected,          nickLabel,  &QLabel::show);
-    connect(ircClient, &IrcClient::disconnected,       nickLabel,  &QLabel::hide);
-    if (ChatSettingsGeneralPage::getAutoConnect()) {
+    connect(ircClient, &IrcClient::IrcClient::notice,             serverPage, &ServerPage::notice);
+    connect(ircClient, &IrcClient::IrcClient::serverResponse,     serverPage, &ServerPage::serverResponse);
+    connect(ircClient, &IrcClient::IrcClient::ctcpRequest,        serverPage, &ServerPage::ctcpRequest);
+    connect(ircClient, &IrcClient::IrcClient::ctcpReply,          serverPage, &ServerPage::ctcpReply);
+    connect(ircClient, &IrcClient::IrcClient::quit,               serverPage, &ServerPage::quit);
+    connect(ircClient, &IrcClient::IrcClient::connecting,         serverPage, &ServerPage::connecting);
+    connect(ircClient, &IrcClient::IrcClient::disconnected,       serverPage, &ServerPage::disconnected);
+    connect(ircClient, &IrcClient::IrcClient::userModeChanged,    serverPage, &ServerPage::userModeChanged);
+    connect(ircClient, &IrcClient::IrcClient::join,               this,       &ChatDock::joinedChannel);
+    connect(ircClient, &IrcClient::IrcClient::connected,          this,       &ChatDock::connected);
+    connect(ircClient, &IrcClient::IrcClient::privateMessage,     this,       &ChatDock::routePrivateMessage);
+    connect(ircClient, &IrcClient::IrcClient::action,             this,       &ChatDock::routePrivateAction);
+    connect(ircClient, &IrcClient::IrcClient::nickChange,         nickLabel,  &QLabel::setText);
+    connect(ircClient, &IrcClient::IrcClient::connected,          nickLabel,  &QLabel::show);
+    connect(ircClient, &IrcClient::IrcClient::disconnected,       nickLabel,  &QLabel::hide);
+    if (Settings::getInstance().getAutoConnect()) {
         connectToServer();
     }
 }
@@ -184,7 +182,7 @@ ChatDock::~ChatDock()
     delete ircClient;
 }
 
-void ChatDock::joinedChannel(const Channel& channel)
+void ChatDock::joinedChannel(const IrcClient::Channel& channel)
 {
     ChannelPage* channelPage;
 
@@ -195,21 +193,21 @@ void ChatDock::joinedChannel(const Channel& channel)
         channelPage = createChannelPage(channel.getName());
     }
 
-    connect(&channel, &Channel::topicTextResponse,  channelPage, &ChannelPage::topicTextResponse);
-    connect(&channel, &Channel::topicInfoResponse,  channelPage, &ChannelPage::topicInfoResponse);
-    connect(&channel, &Channel::nicksReady,         channelPage, &ChannelPage::nicksReady);
-    connect(&channel, &Channel::channelMessage,     channelPage, &ChannelPage::channelMessage);
-    connect(&channel, &Channel::action,             channelPage, &ChannelPage::action);
-    connect(&channel, &Channel::join,               channelPage, &ChannelPage::join);
-    connect(&channel, &Channel::nickChange,         channelPage, &ChannelPage::nickChange);
-    connect(&channel, &Channel::notice,             channelPage, &ChannelPage::notice);
-    connect(&channel, &Channel::part,               channelPage, &ChannelPage::part);
-    connect(&channel, &Channel::quit,               channelPage, &ChannelPage::quit);
-    connect(&channel, &Channel::topicChanged,       channelPage, &ChannelPage::topicChanged);
-    connect(&channel, &Channel::modeChanged,        channelPage, &ChannelPage::modeChanged);
-    connect(&channel, &Channel::kick,               channelPage, &ChannelPage::kick);
-    connect(&channel, &Channel::topicChanged,       this,        &ChatDock::changeTopic);
-    connect(&channel, &Channel::topicTextResponse,  this,        &ChatDock::changeTopic);
+    connect(&channel, &IrcClient::Channel::topicTextResponse,  channelPage, &ChannelPage::topicTextResponse);
+    connect(&channel, &IrcClient::Channel::topicInfoResponse,  channelPage, &ChannelPage::topicInfoResponse);
+    connect(&channel, &IrcClient::Channel::nicksReady,         channelPage, &ChannelPage::nicksReady);
+    connect(&channel, &IrcClient::Channel::channelMessage,     channelPage, &ChannelPage::channelMessage);
+    connect(&channel, &IrcClient::Channel::action,             channelPage, &ChannelPage::action);
+    connect(&channel, &IrcClient::Channel::join,               channelPage, &ChannelPage::join);
+    connect(&channel, &IrcClient::Channel::nickChange,         channelPage, &ChannelPage::nickChange);
+    connect(&channel, &IrcClient::Channel::notice,             channelPage, &ChannelPage::notice);
+    connect(&channel, &IrcClient::Channel::part,               channelPage, &ChannelPage::part);
+    connect(&channel, &IrcClient::Channel::quit,               channelPage, &ChannelPage::quit);
+    connect(&channel, &IrcClient::Channel::topicChanged,       channelPage, &ChannelPage::topicChanged);
+    connect(&channel, &IrcClient::Channel::modeChanged,        channelPage, &ChannelPage::modeChanged);
+    connect(&channel, &IrcClient::Channel::kick,               channelPage, &ChannelPage::kick);
+    connect(&channel, &IrcClient::Channel::topicChanged,       this,        &ChatDock::changeTopic);
+    connect(&channel, &IrcClient::Channel::topicTextResponse,  this,        &ChatDock::changeTopic);
     connect(&channelPage->getUserTreeModel(), &UserTreeModel::branchAdded, userTree, &UserTree::expand);
 
     switchToTab(channelPage->getTab());
@@ -239,7 +237,7 @@ ChannelPage* ChatDock::createChannelPage(const QString& channelName)
     channelTab->setText(0, channelName);
     serverTab->addChild(channelTab);
     channelPage = new ChannelPage(channelTab, tabTree);
-    connect(ircClient, &IrcClient::disconnected, channelPage, &ChannelPage::disable);
+    connect(ircClient, &IrcClient::IrcClient::disconnected, channelPage, &ChannelPage::disable);
     connect(channelPage, &ChannelPage::partActionTriggered, this, &ChatDock::partChannelAction);
     connect(channelPage, &ChannelPage::joinActionTriggered, this, &ChatDock::joinChannelAction);
     connect(channelPage, &ChannelPage::closeActionTriggered, this, &ChatDock::closeChannelAction);
@@ -323,7 +321,7 @@ void ChatDock::showNicksFor(const QString& channel)
 
 void ChatDock::changeTopic(const QString& topicText)
 {
-    const Channel* channel = static_cast<Channel*>(sender());
+    const IrcClient::Channel* channel = static_cast<IrcClient::Channel*>(sender());
     QString tabName = getSelectedTabName();
     if (tabName == channel->getName()) {
         topicLine->setText(topicText);
@@ -380,11 +378,12 @@ QString ChatDock::getSelectedTabName() const
 
 void ChatDock::connected()
 {
-    if (ChatSettingsGeneralPage::getAutoIdentify()) {
-        ircClient->identify(ChatSettingsGeneralPage::getPassword());
+    const Settings& settings = Settings::getInstance();
+    if (settings.getAutoIdentify()) {
+        ircClient->identify(settings.getPassword());
     }
-    if (ChatSettingsChannelPage::getAutojoinChannels()) {
-        if (ChatSettingsChannelPage::getWaitBeforeAutojoining()) {
+    if (settings.getAutojoinChannels()) {
+        if (settings.getWaitBeforeAutojoining()) {
             autojoinTimer->start();
         } else {
             joinChannels();
@@ -417,19 +416,20 @@ void ChatDock::showTabTreeContextMenu(const QPoint &pos)
 
 void ChatDock::connectToServer()
 {
+    const Settings& settings = Settings::getInstance();
     //ircSrv->connect("irc.wenet.ru", 6667, "", "wolferiac", "username", "windows-1251");
-    const int& serverId = ChatSettingsGeneralPage::getServerId();
-    const QList<ChatSettingsServerPage::Server> servers = ChatSettingsServerPage::getServerList();
+    const int serverId = settings.getServerId();
+    const QList<Settings::Server>& servers = settings.getServerList();
     if (serverId >= 0 && serverId < servers.size()) {
-        ircClient->connect(servers[serverId].address, servers[serverId].port, servers[serverId].password, ChatSettingsGeneralPage::getNick(), ChatSettingsGeneralPage::getUsername(), servers[serverId].encoding);
+        ircClient->connect(servers[serverId].address, servers[serverId].port, servers[serverId].password, settings.getNick(), settings.getUsername(), servers[serverId].encoding);
     }
 }
 
 void ChatDock::joinChannels()
 {
-    const QList<ChatSettingsChannelPage::Channel>& channels = ChatSettingsChannelPage::getAutojoinChannelList();
-    for (int i = 0; i < channels.size(); i ++) {
-        ircClient->joinChannel(channels[i].name, channels[i].password);
+    const QList<Settings::Channel>& channels = Settings::getInstance().getAutojoinChannelList();
+    for (const Settings::Channel& channel : channels) {
+        ircClient->joinChannel(channel.name, channel.password);
     }
 }
 
@@ -451,7 +451,7 @@ void ChatDock::joinChannelAction()
     ircClient->joinChannel(channel);
 }
 
-void ChatDock::routePrivateMessage(const User &sender, const QString &message, const QString &target)
+void ChatDock::routePrivateMessage(const IrcClient::User &sender, const QString &message, const QString &target)
 {
     QString pageName;
     if (sender.nick == ircClient->getUs().nick) {
@@ -463,7 +463,7 @@ void ChatDock::routePrivateMessage(const User &sender, const QString &message, c
     getPrivatePage(pageName)->privateMessage(sender, message);
 }
 
-void ChatDock::routePrivateAction(const User &sender, const QString &message, const QString &target)
+void ChatDock::routePrivateAction(const IrcClient::User &sender, const QString &message, const QString &target)
 {
     QString pageName;
     if (sender.nick == ircClient->getUs().nick) {
@@ -494,8 +494,8 @@ PrivatePage* ChatDock::createPrivatePage(const QString &pageName)
         privateTab->setText(0, pageName);
         serverTab->addChild(privateTab);
         privatePage = new PrivatePage(privateTab, tabTree);
-        connect(ircClient, &IrcClient::disconnected,   privatePage, &PrivatePage::disable);
-        connect(ircClient, &IrcClient::connected,      privatePage, &PrivatePage::enable);
+        connect(ircClient, &IrcClient::IrcClient::disconnected,   privatePage, &PrivatePage::disable);
+        connect(ircClient, &IrcClient::IrcClient::connected,      privatePage, &PrivatePage::enable);
         connect(privatePage, &PrivatePage::closeActionTriggered, this, &ChatDock::deletePrivatePage);
         pages->addWidget(privatePage);
         if (!privatePages.size()) {
@@ -520,16 +520,16 @@ void ChatDock::deletePrivatePage()
 
 void ChatDock::showSettingsDialog()
 {
-    ChatSettingsDialog settings(this);
-    settings.showDialog();
+    Settings::getInstance().executeSettingsDialog(this);
 }
 
 void ChatDock::applySettings()
 {
-    tabTree->setFont(ChatSettingsFontPage::getChatListFont());
-    userTree->setFont(ChatSettingsFontPage::getUserListFont());
-    ircClient->setQuitMessage(ChatSettingsGeneralPage::getQuitMessage());
-    autojoinTimer->setInterval(ChatSettingsChannelPage::getTimeToWaitBeforeAutojoining() * 1000);
+    const Settings& settings = Settings::getInstance();
+    tabTree->setFont(settings.getChatListFont());
+    userTree->setFont(settings.getUserListFont());
+    ircClient->setQuitMessage(settings.getQuitMessage());
+    autojoinTimer->setInterval(settings.getTimeToWaitBeforeAutojoining() * 1000);
 }
 
 void ChatDock::closeChannelAction()
@@ -539,3 +539,5 @@ void ChatDock::closeChannelAction()
     ircClient->sendPart(channel);
     deleteChannelPage(channel);
 }
+
+} // namespace Chat

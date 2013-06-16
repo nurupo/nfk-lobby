@@ -20,8 +20,9 @@
 #include "game.hpp"
 
 #include <QAbstractSocket>
-#include <QtCore>
 #include <QTcpSocket>
+
+namespace PlanetScanner {
 
 class Planet : public QObject
 {
@@ -56,5 +57,7 @@ private slots:
 public slots:
     void requestInfo();
 };
+
+} // namespace PlanetScanner
 
 #endif // PLANET_HPP

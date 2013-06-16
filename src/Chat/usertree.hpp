@@ -20,6 +20,8 @@
 #include <QMenu>
 #include <QTreeView>
 
+namespace Chat {
+
 class UserTree : public QTreeView
 {
     Q_OBJECT
@@ -39,5 +41,7 @@ signals:
 public slots:
     void showContextMenu(const QPoint &pos);
 };
+
+} // namespace Chat
 
 #endif // USERTREE_HPP

@@ -14,8 +14,8 @@
     See the COPYING file for more details.
 */
 
-#ifndef CHATSETTINGSCHANNELPAGE_HPP
-#define CHATSETTINGSCHANNELPAGE_HPP
+#ifndef CHATCHANNELSETTINGSPAGE_HPP
+#define CHATCHANNELSETTINGSPAGE_HPP
 
 #include "../../Settings/abstractsettingspage.hpp"
 
@@ -26,30 +26,18 @@
 #include <QString>
 #include <QTreeView>
 
-class ChatSettingsChannelPage : public AbstractSettingsPage
+namespace Chat {
+
+class ChannelSettingsPage : public AbstractSettingsPage
 {
     Q_OBJECT
 public:
-    explicit ChatSettingsChannelPage(QStackedWidget *parent, const QString &pageName, const QString &iconPath);
-
-    struct Channel
-    {
-        QString name;
-        QString password;
-    };
-
-    static bool getAutojoinChannels()               {return autojoinChannels;}
-    static QList<Channel> getAutojoinChannelList()  {return autojoinChannelList;}
-    static bool getWaitBeforeAutojoining()          {return waitBeforeAutojoining;}
-    static int getTimeToWaitBeforeAutojoining()     {return timeToWaitBeforeAutojoining;}
+    ChannelSettingsPage(QWidget* parent);
+    void applyChanges();
+    void buildGui();
+    void setGui();
 
 private:
-    void save(QSettings& settings);
-    void load(QSettings& settings);
-    void apply();
-    void setGui();
-    void buildGui();
-
     QGroupBox* buildAutojoinGroup();
     QGroupBox* buildChannelGroup(QGroupBox* parent);
     QGroupBox* buildOptionsGroup(QGroupBox* parent);
@@ -60,15 +48,11 @@ private:
     QCheckBox* waitCheckBox;
     QSpinBox* waitSpinBox;
 
-    static bool autojoinChannels;
-    static QList<Channel> autojoinChannelList;
-    static bool waitBeforeAutojoining;
-    static int timeToWaitBeforeAutojoining;
-
 private slots:
     void channelAddButtonClicked();
     void channelRemoveButtonClicked();
-
 };
 
-#endif // CHATSETTINGSCHANNELPAGE_HPP
+} // namespace Chat
+
+#endif // CHATCHANNELSETTINGSPAGE_HPP
