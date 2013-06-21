@@ -1,0 +1,16 @@
+language: cpp
+compiler:
+  - gcc
+
+before_install:
+  - yes | sudo add-apt-repository ppa:canonical-qt5-edgers/qt5-proper 
+  - sudo apt-get update -qq
+  - yes | sudo apt-get install qtdeclarative5-dev
+
+script:
+  - qmake -qt=qt5 -Wall projectfiles/QtCreator/NFK-Lobby.pro
+  - make
+
+notifications:
+  irc: "chat.freenode.net#nfk-lobby"
+  
