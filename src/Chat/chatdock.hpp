@@ -17,79 +17,15 @@
 #ifndef CHATDOCK_HPP
 #define CHATDOCK_HPP
 
-#include "../IrcClient/ircclient.hpp"
-#include "Pages/channelpage.hpp"
-#include "Pages/privatepage.hpp"
-#include "Pages/serverpage.hpp"
-#include "topiclabel.hpp"
-#include "usertree.hpp"
-
 #include <QDockWidget>
-#include <QLabel>
-#include <QMenu>
-#include <QStackedWidget>
-#include <QTextEdit>
-#include <QTreeView>
 
 namespace Chat {
 
 class Dock : public QDockWidget
 {
-    Q_OBJECT
 public:
     Dock(QWidget* parent);
-    ~Dock();
 
-    static IrcClient::IrcClient* ircClient;
-
-private:
-    QString getSelectedTabName() const;
-    ChannelPage* createChannelPage(const QString &channelName);
-    PrivatePage* createPrivatePage(const QString &pageName);
-    void deleteChannelPage(const QString& channelName);
-    void switchToTab(QTreeWidgetItem* tab);
-
-    QDockWidget*        topicDock;
-    TopicLabel*         topicLine;
-    QDockWidget*        userDock;
-    QTreeWidget*        tabTree;
-    QTreeWidgetItem*    serverTab;
-    QLabel*             nickLabel;
-    QLineEdit*          inputLine;
-    QStackedWidget*     pages;
-    ServerPage*         serverPage;
-    UserTree*           userTree;
-    QMenu*              channelContextMenu;
-    QMenu*              privateContextMenu;
-    QTimer*             autojoinTimer;
-
-    QHash<QString, ChannelPage*> channelPages;
-    QHash<QString, PrivatePage*> privatePages;
-
-    PrivatePage* getPrivatePage(QString &pageName);
-
-private slots:
-    void changeTopic(const QString& topicText);
-    void joinedChannel(const IrcClient::Channel& channel);
-
-    void startPrivate(const QString &nick);
-    void sendMessage();
-    void showNicksFor(const QString& channel);
-    void tabSelected();
-    void connected();
-    void showTabTreeContextMenu(const QPoint &pos);
-    void partChannelAction();
-    void joinChannelAction();
-    void closeChannelAction();
-    void disconnectFromServer();
-    void connectToServer();
-    void routePrivateMessage(const IrcClient::User &sender, const QString &message, const QString &target);
-    void routePrivateAction(const IrcClient::User &sender, const QString &message, const QString &target);
-    void deletePrivatePage();
-    //void routePart(const Channel& channel);
-    void showSettingsDialog();
-    void applySettings();
-    void joinChannels();
 };
 
 } // namespace Chat

@@ -17,57 +17,15 @@
 #ifndef PLANETSCANNERDOCK_HPP
 #define PLANETSCANNERDOCK_HPP
 
-#include "game.hpp"
-#include "planet.hpp"
-#include "planettreemodel.hpp"
-#include "planettreesortfilterproxymodel.hpp"
-
 #include <QDockWidget>
-#include <QMenu>
-#include <QProcess>
-#include <QStandardItemModel>
-#include <QTimer>
-#include <QTreeView>
 
 namespace PlanetScanner {
 
 class Dock : public QDockWidget
 {
-    Q_OBJECT
 public:
     Dock(QWidget* parent);
-    ~Dock();
 
-private:
-    QProcess* game;
-    QMenu* gameContextMenu;
-    QMenu* planetContextMenu;
-    bool contextMenuShown;
-    QTimer* autoRefreshTimer;
-    QList<Planet*> planetList;
-    QTreeView* planetTreeView;
-    PlanetTreeModel* planetTreeModel;
-    PlanetTreeSortFilterProxyModel* planetTreeProxyModel;
-
-    void addPlanet(Planet* planet);
-    void removePlanet(Planet* planet);
-    QStandardItem* getPlanetTreeWidgetItem(const Planet &planet);
-    void resizeColumnsToContents();
-    void startGame(const QString &additionalCommandlineArguments);
-    QString getBasenfkPath();
-    void error(const QString &errorText);
-
-private slots:
-    void refreshPlanets();
-    void showSettingsDialog();
-    void addGame(const Planet &planet, const QList<Game> &games);
-    void setPlanetConnectionError(const Planet &planet, QAbstractSocket::SocketError socketError);
-    void clearPlanetConnectionError(const Planet &planet);
-    void connectSelected();
-    void connectAsSpectatorSelected();
-    void copySelected();
-    void showContextMenu(const QPoint &pos);
-    void applyChangedSettings();
 };
 
 } // namespace PlanetScanner

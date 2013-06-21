@@ -16,8 +16,8 @@
 
 #include "../../IrcClient/channel.hpp"
 #include "../../IrcClient/usermode.hpp"
-#include "../chatdock.hpp"
 #include "../chattabtree.hpp"
+#include "../chatwindow.hpp"
 #include "channelpage.hpp"
 
 #include <QDockWidget>
@@ -48,7 +48,7 @@ ChannelPage::~ChannelPage()
 
 void ChannelPage::nicksReady()
 {    
-    QHashIterator<QString, IrcClient::UserMode*> iterator = Dock::ircClient->getChannel(getName()).getUserIterator();
+    QHashIterator<QString, IrcClient::UserMode*> iterator = Window::ircClient->getChannel(getName()).getUserIterator();
     while (iterator.hasNext()) {
         QString key = iterator.next().key();
         addUser(key);
@@ -92,7 +92,7 @@ void ChannelPage::join(const IrcClient::User &user)
           , Information
     );
 
-    if (!Dock::ircClient->getUs().nick.compare(user.nick, Qt::CaseInsensitive)) {
+    if (!Window::ircClient->getUs().nick.compare(user.nick, Qt::CaseInsensitive)) {
         enable();
     } else {
         addUser(user.nick);
@@ -107,7 +107,7 @@ void ChannelPage::part(const IrcClient::User &user)
           .arg(user.hostname)
           , Information
     );
-    if (!Dock::ircClient->getUs().nick.compare(user.nick, Qt::CaseInsensitive)) {
+    if (!Window::ircClient->getUs().nick.compare(user.nick, Qt::CaseInsensitive)) {
         disable();
     } else {
         removeUser(user.nick);
@@ -123,7 +123,7 @@ void ChannelPage::quit(const IrcClient::User &user, const QString &message)
           .arg(message)
           , Information
     );
-    if (!Dock::ircClient->getUs().nick.compare(user.nick, Qt::CaseInsensitive)) {
+    if (!Window::ircClient->getUs().nick.compare(user.nick, Qt::CaseInsensitive)) {
         disable();
     } else {
         removeUser(user.nick);
@@ -175,7 +175,7 @@ void ChannelPage::kick(const IrcClient::User& sender, const QString& message, co
           .arg(message)
           , Information
     );
-    if (!Dock::ircClient->getUs().nick.compare(recipient, Qt::CaseInsensitive)) {
+    if (!Window::ircClient->getUs().nick.compare(recipient, Qt::CaseInsensitive)) {
         disable();
     } else {
         removeUser(recipient);
@@ -195,7 +195,7 @@ void ChannelPage::modeChanged(const IrcClient::User& sender, const QString& mode
 
     if (modes.contains('v') || modes.contains('o')) {
         const QString recipient = iterator.next();
-        const IrcClient::UserMode& mode = Dock::ircClient->getChannel(getName()).getUserMode(recipient);
+        const IrcClient::UserMode& mode = Window::ircClient->getChannel(getName()).getUserMode(recipient);
         userTreeModel->removeUser(recipient);
         userTreeModel->addUser(recipient, mode.op, mode.voice);
     }
@@ -203,19 +203,19 @@ void ChannelPage::modeChanged(const IrcClient::User& sender, const QString& mode
 
 void ChannelPage::addUser(const QString &nick)
 {
-    const IrcClient::UserMode& mode = Dock::ircClient->getChannel(getName()).getUserMode(nick);
+    const IrcClient::UserMode& mode = Window::ircClient->getChannel(getName()).getUserMode(nick);
     userTreeModel->addUser(nick, mode.op, mode.voice);
 }
 
 void ChannelPage::removeUser(const QString &nick)
 {
-    const IrcClient::UserMode& mode = Dock::ircClient->getChannel(getName()).getUserMode(nick);
+    const IrcClient::UserMode& mode = Window::ircClient->getChannel(getName()).getUserMode(nick);
     userTreeModel->removeUser(nick, mode.op, mode.voice);
 }
 
 void ChannelPage::renameUser(const QString &oldNick, const QString &newNick)
 {
-    const IrcClient::UserMode& mode = Dock::ircClient->getChannel(getName()).getUserMode(oldNick);
+    const IrcClient::UserMode& mode = Window::ircClient->getChannel(getName()).getUserMode(oldNick);
     userTreeModel->removeUser(oldNick, mode.op, mode.voice);
     userTreeModel->addUser(newNick, mode.op, mode.voice);
 }

@@ -26,6 +26,7 @@ SOURCES += \
     ../../src/mainwindow.cpp \
     ../../src/Chat/chatdock.cpp \
     ../../src/Chat/chattabtree.cpp \
+    ../../src/Chat/chatwindow.cpp \
     ../../src/Chat/topiclabel.cpp \
     ../../src/Chat/useritem.cpp \
     ../../src/Chat/usertree.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
     ../../src/Chat/Settings/customhinttreeview.cpp \
     ../../src/GamePreferences/checkboxdelegate.cpp \
     ../../src/GamePreferences/gamepreferencesdock.cpp \
+    ../../src/GamePreferences/gamepreferenceswindow.cpp \
     ../../src/GamePreferences/gametype.cpp \
     ../../src/GamePreferences/preferencessortingmodel.cpp \
     ../../src/GamePreferences/Settings/gamepreferencesgeneralsettingspage.cpp \
@@ -56,6 +58,7 @@ SOURCES += \
     ../../src/PlanetScanner/game.cpp \
     ../../src/PlanetScanner/planet.cpp \
     ../../src/PlanetScanner/planetscannerdock.cpp \
+    ../../src/PlanetScanner/planetscannerwindow.cpp \
     ../../src/PlanetScanner/planettreemodel.cpp \
     ../../src/PlanetScanner/planettreesortfilterproxymodel.cpp \
     ../../src/PlanetScanner/Settings/filtersettingspage.cpp \
@@ -74,6 +77,7 @@ HEADERS  += \
     ../../src/mainwindow.hpp \
     ../../src/Chat/chatdock.hpp \
     ../../src/Chat/chattabtree.hpp \
+    ../../src/Chat/chatwindow.hpp \
     ../../src/Chat/topiclabel.hpp \
     ../../src/Chat/useritem.hpp \
     ../../src/Chat/usertree.hpp \
@@ -92,6 +96,7 @@ HEADERS  += \
     ../../src/Chat/Settings/customhinttreeview.hpp \
     ../../src/GamePreferences/checkboxdelegate.hpp \
     ../../src/GamePreferences/gamepreferencesdock.hpp \
+    ../../src/GamePreferences/gamepreferenceswindow.hpp \
     ../../src/GamePreferences/gametype.hpp \
     ../../src/GamePreferences/preferencessortingmodel.hpp \
     ../../src/GamePreferences/Settings/gamepreferencesgeneralsettingspage.hpp \
@@ -106,6 +111,7 @@ HEADERS  += \
     ../../src/PlanetScanner/game.hpp \
     ../../src/PlanetScanner/planet.hpp \
     ../../src/PlanetScanner/planetscannerdock.hpp \
+    ../../src/PlanetScanner/planetscannerwindow.hpp \
     ../../src/PlanetScanner/planettreemodel.hpp \
     ../../src/PlanetScanner/planettreesortfilterproxymodel.hpp \
     ../../src/PlanetScanner/Settings/filtersettingspage.hpp \
