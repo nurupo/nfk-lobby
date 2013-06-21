@@ -27,10 +27,10 @@
 
 namespace Chat {
 
-class ChatSettingsModifyServerDialog : public QDialog
+class ModifyServerSettingsDialog : public QDialog
 {
 public:
-    explicit ChatSettingsModifyServerDialog(QWidget* parent);
+    explicit ModifyServerSettingsDialog(QWidget* parent);
     void setServerInformation(const Settings::Server& server);
     Settings::Server getServerInformation();
 

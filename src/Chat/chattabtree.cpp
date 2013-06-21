@@ -18,13 +18,13 @@
 
 namespace Chat {
 
-ChatTabTree::ChatTabTree(QWidget *parent, int startingSize) :
+TabTree::TabTree(QWidget *parent, int startingSize) :
     QTreeWidget(parent)
 {
     this->startingSize = startingSize;
 }
 
-QSize ChatTabTree::sizeHint() const
+QSize TabTree::sizeHint() const
 {
     return QSize(startingSize, startingSize);
 }

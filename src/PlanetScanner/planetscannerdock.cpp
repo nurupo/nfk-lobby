@@ -34,7 +34,7 @@
 
 namespace PlanetScanner {
 
-PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
+Dock::Dock(QWidget* parent) : QDockWidget(parent)
 {
     const QString dockName = "Planet Scanner";
     setObjectName(dockName);
@@ -90,19 +90,19 @@ PlanetScannerDock::PlanetScannerDock(QWidget* parent) : QDockWidget(parent)
     contextMenuShown = false;
 
     Settings& settings = Settings::getInstance();
-    connect(&settings, &Settings::dataChanged, this, &PlanetScannerDock::applyChangedSettings);
+    connect(&settings, &Settings::dataChanged, this, &Dock::applyChangedSettings);
     settings.load();
     applyChangedSettings();
 }
 
-PlanetScannerDock::~PlanetScannerDock()
+Dock::~Dock()
 {
     while(planetList.size() != 0) {
         delete planetList.takeAt(0);
     }
 }
 
-QStandardItem* PlanetScannerDock::getPlanetTreeWidgetItem(const Planet &planet)
+QStandardItem* Dock::getPlanetTreeWidgetItem(const Planet &planet)
 {
     const QString searchingText = QString("%1:%2").arg(planet.getAddress()).arg(planet.getPort());
     QList<QStandardItem*> items = planetTreeModel->findItems(searchingText, Qt::MatchExactly, 0);
@@ -115,7 +115,7 @@ QStandardItem* PlanetScannerDock::getPlanetTreeWidgetItem(const Planet &planet)
     return 0;
 }
 
-void PlanetScannerDock::refreshPlanets()
+void Dock::refreshPlanets()
 {
     /*if (contextMenuShown) {
         return;
@@ -125,7 +125,7 @@ void PlanetScannerDock::refreshPlanets()
     }
 }
 
-void PlanetScannerDock::addGame(const Planet &planet, const QList<Game> &games)
+void Dock::addGame(const Planet &planet, const QList<Game> &games)
 {
     //saving selction
     QModelIndex currentIndex = planetTreeView->selectionModel()->currentIndex();
@@ -152,14 +152,14 @@ void PlanetScannerDock::addGame(const Planet &planet, const QList<Game> &games)
     resizeColumnsToContents();
 }
 
-void inline PlanetScannerDock::resizeColumnsToContents()
+void inline Dock::resizeColumnsToContents()
 {
     if (!Settings::getInstance().getResizeOnRefreshDisabled()) {
         planetTreeView->header()->resizeSections(QHeaderView::ResizeToContents);
     }
 }
 
-void PlanetScannerDock::setPlanetConnectionError(const Planet &planet, QAbstractSocket::SocketError socketError)
+void Dock::setPlanetConnectionError(const Planet &planet, QAbstractSocket::SocketError socketError)
 {
     QString errorEnum;
     QDebug(&errorEnum).nospace() << socketError;
@@ -175,7 +175,7 @@ void PlanetScannerDock::setPlanetConnectionError(const Planet &planet, QAbstract
     }
 }
 
-void PlanetScannerDock::clearPlanetConnectionError(const Planet &planet)
+void Dock::clearPlanetConnectionError(const Planet &planet)
 {
     QStandardItem* planetItem = getPlanetTreeWidgetItem(planet);
     QStandardItem* errorItem = planetTreeModel->item(planetItem->row(), 1);
@@ -183,12 +183,12 @@ void PlanetScannerDock::clearPlanetConnectionError(const Planet &planet)
     resizeColumnsToContents();
 }
 
-void PlanetScannerDock::showSettingsDialog()
+void Dock::showSettingsDialog()
 {
     Settings::getInstance().executeSettingsDialog(this);
 }
 
-void PlanetScannerDock::addPlanet(Planet* planet)
+void Dock::addPlanet(Planet* planet)
 {
     connect(planet, SIGNAL(gameInfoRecieved(const Planet &, const QList<Game> &)), this, SLOT(addGame(const Planet &, const QList<Game> &)));
     connect(planet, SIGNAL(error(const Planet &, QAbstractSocket::SocketError)), this, SLOT(setPlanetConnectionError(const Planet &, QAbstractSocket::SocketError)));
@@ -204,14 +204,14 @@ void PlanetScannerDock::addPlanet(Planet* planet)
     resizeColumnsToContents();
 }
 
-void PlanetScannerDock::removePlanet(Planet* planet)
+void Dock::removePlanet(Planet* planet)
 {
     planetList.removeAt(planetList.indexOf(planet));
     QStandardItem* item = getPlanetTreeWidgetItem(*planet);
     planetTreeModel->removeRow(item->row());
 }
 
-void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
+void Dock::startGame(const QString &additionalCommandlineArguments)
 {
     QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
     if (selectedIndexes.at(2).data().toString() == "") {
@@ -250,12 +250,12 @@ void PlanetScannerDock::startGame(const QString &additionalCommandlineArguments)
     nfksetup.setValue("port", oldPort);
 }
 
-void PlanetScannerDock::connectSelected()
+void Dock::connectSelected()
 {
     startGame("+connect " + planetTreeView->selectionModel()->selectedIndexes().at(4).data().toString());
 }
 
-void PlanetScannerDock::connectAsSpectatorSelected()
+void Dock::connectAsSpectatorSelected()
 {
     QString configPath = getBasenfkPath()+ "spec.cfg";
     QFile config(configPath);
@@ -269,13 +269,13 @@ void PlanetScannerDock::connectAsSpectatorSelected()
     startGame("+exec spec ");
 }
 
-QString PlanetScannerDock::getBasenfkPath()
+QString Dock::getBasenfkPath()
 {
     QString gamePath = Settings::getInstance().getGamePath();
     return gamePath.left(gamePath.lastIndexOf('/')) + "/basenfk/";
 }
 
-void PlanetScannerDock::copySelected()
+void Dock::copySelected()
 {
     QString copy;
     QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
@@ -297,12 +297,12 @@ void PlanetScannerDock::copySelected()
     QGuiApplication::clipboard()->setText(copy);
 }
 
-void PlanetScannerDock::error(const QString &errorText)
+void Dock::error(const QString &errorText)
 {
     QMessageBox::critical(this, QString("Error"), errorText, QMessageBox::Ok);
 }
 
-void PlanetScannerDock::showContextMenu(const QPoint &pos)
+void Dock::showContextMenu(const QPoint &pos)
 {
     QPoint globalPos = planetTreeView->viewport()->mapToGlobal(pos);
     globalPos.setX(globalPos.x() + 1);
@@ -320,7 +320,7 @@ void PlanetScannerDock::showContextMenu(const QPoint &pos)
     contextMenuShown = false;
 }
 
-void PlanetScannerDock::applyChangedSettings()
+void Dock::applyChangedSettings()
 {
     const Settings& settings = Settings::getInstance();
     QList<Settings::PlanetAddress> planets = settings.getPlanets();

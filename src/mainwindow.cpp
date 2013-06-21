@@ -43,13 +43,13 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle(name);
     this->setDockNestingEnabled(true);
 
-    PlanetScanner::PlanetScannerDock* scannerDock = new PlanetScanner::PlanetScannerDock(this);
+    PlanetScanner::Dock* scannerDock = new PlanetScanner::Dock(this);
     this->addDockWidget(Qt::TopDockWidgetArea, scannerDock);
 
-    Chat::ChatDock* chatDock = new Chat::ChatDock(this);
+    Chat::Dock* chatDock = new Chat::Dock(this);
     this->addDockWidget(Qt::TopDockWidgetArea, chatDock);
 
-    GamePreferences::GamePreferencesDock* preferencesDock = new GamePreferences::GamePreferencesDock(this);
+    GamePreferences::Dock* preferencesDock = new GamePreferences::Dock(this);
     preferencesDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
     this->addDockWidget(Qt::TopDockWidgetArea, preferencesDock);
 

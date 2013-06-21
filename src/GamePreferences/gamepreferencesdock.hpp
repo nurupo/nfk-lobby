@@ -31,12 +31,12 @@
 
 namespace GamePreferences {
 
-class GamePreferencesDock : public QDockWidget
+class Dock : public QDockWidget
 {
     Q_OBJECT
 public:
-    GamePreferencesDock(QWidget* parent);
-    ~GamePreferencesDock();
+    Dock(QWidget* parent);
+    ~Dock();
 
 private:
     IrcClient::IrcClient* ircClient;

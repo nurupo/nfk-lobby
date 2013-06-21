@@ -31,11 +31,11 @@
 
 namespace GamePreferences {
 
-GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
+Dock::Dock(QWidget *parent) :
     QDockWidget(parent)
 {
     Settings::getInstance().load();
-    connect(&Settings::getInstance(), &Settings::dataChanged, this, &GamePreferencesDock::applySettings);
+    connect(&Settings::getInstance(), &Settings::dataChanged, this, &Dock::applySettings);
 
     const QString dockName = "Game Preferences";
     setObjectName(dockName);
@@ -53,9 +53,9 @@ GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
     QAction* connectAction = new QAction(QIcon(":/icons/connect.png"), "Connect", toolbar);
     QAction* disconnectAction = new QAction(QIcon(":/icons/disconnect.png"), "Disconnect", toolbar);
     QAction* settingsAction = toolbar->addAction(QIcon(":/icons/settings.png"), "Settings");
-    connect(connectAction, &QAction::triggered, this, &GamePreferencesDock::connectToServer);
-    connect(disconnectAction, &QAction::triggered, this, &GamePreferencesDock::disconnectFromServer);
-    connect(settingsAction, &QAction::triggered, this, &GamePreferencesDock::showSettingsDialog);
+    connect(connectAction, &QAction::triggered, this, &Dock::connectToServer);
+    connect(disconnectAction, &QAction::triggered, this, &Dock::disconnectFromServer);
+    connect(settingsAction, &QAction::triggered, this, &Dock::showSettingsDialog);
     toolbar->addActions(QList<QAction*>() << connectAction << disconnectAction << settingsAction);
 
     preferencesView = new QTableView(this);
@@ -68,7 +68,7 @@ GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
     headers.append(GameType::getNames());
     preferencesModel->setHorizontalHeaderLabels(headers);
     preferencesView->setModel(sortModel);
-    connect(preferencesModel, &QStandardItemModel::itemChanged, this, &GamePreferencesDock::onOurGameTypeModified);
+    connect(preferencesModel, &QStandardItemModel::itemChanged, this, &Dock::onOurGameTypeModified);
     for (int i = 1; i < preferencesModel->columnCount(); i ++) {
         preferencesView->setColumnWidth(i, 50);
         CheckBoxDelegate* checkBoxDelegate = new CheckBoxDelegate(preferencesView);
@@ -78,11 +78,11 @@ GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
 
     ircClient = new IrcClient::IrcClient();
     ircClient->setVersion(QString("%1 %2 by %3 build date %4").arg(MainWindow::name).arg(MainWindow::version).arg(MainWindow::author).arg(MainWindow::buildDate));
-    connect(ircClient, &IrcClient::IrcClient::connected,           this, &GamePreferencesDock::onConnected);
-    connect(ircClient, &IrcClient::IrcClient::disconnected,        this, &GamePreferencesDock::onDisconnected);
-    connect(ircClient, &IrcClient::IrcClient::join,                this, &GamePreferencesDock::onChannelJoined);
-    connect(ircClient, &IrcClient::IrcClient::privateMessage,      this, &GamePreferencesDock::onPrivateMessageReceived);
-    connect(ircClient, &IrcClient::IrcClient::nickAlreadyInUse,    this, &GamePreferencesDock::onNickAlreadyInUse);
+    connect(ircClient, &IrcClient::IrcClient::connected,           this, &Dock::onConnected);
+    connect(ircClient, &IrcClient::IrcClient::disconnected,        this, &Dock::onDisconnected);
+    connect(ircClient, &IrcClient::IrcClient::join,                this, &Dock::onChannelJoined);
+    connect(ircClient, &IrcClient::IrcClient::privateMessage,      this, &Dock::onPrivateMessageReceived);
+    connect(ircClient, &IrcClient::IrcClient::nickAlreadyInUse,    this, &Dock::onNickAlreadyInUse);
 
     for (int i = 0; i < GameType::NUMBER_OF_GAMETYPES; i ++) {
         gamePreferences[i] = false;
@@ -95,41 +95,41 @@ GamePreferencesDock::GamePreferencesDock(QWidget *parent) :
     setWidget(window);
 }
 
-GamePreferencesDock::~GamePreferencesDock()
+Dock::~Dock()
 {
     delete ircClient;
 }
 
-void GamePreferencesDock::connectToServer()
+void Dock::connectToServer()
 {
     ircClient->connect("irc.wenet.ru", 6667, "", getRandomIrcNick(), "nfkl_user", "windows-1251");
     //for testing purposes
     //ircClient->connect("chat.freenode.net", 6667, "", getRandomIrcNick(), "nfkl_user", "utf-8");
 }
 
-void GamePreferencesDock::disconnectFromServer()
+void Dock::disconnectFromServer()
 {
     ircClient->disconnect();
 }
 
-void GamePreferencesDock::onConnected()
+void Dock::onConnected()
 {
     ircClient->joinChannel("##nfk-game-preferences-test", "lobbytest");
 }
 
-void GamePreferencesDock::onDisconnected()
+void Dock::onDisconnected()
 {
     preferencesModel->removeRows(0, preferencesModel->rowCount());
     ircNickToIndexMap.clear();
 }
 
-void GamePreferencesDock::onChannelJoined(const IrcClient::Channel &channel)
+void Dock::onChannelJoined(const IrcClient::Channel &channel)
 {
-    connect(&channel, &IrcClient::Channel::channelMessage, this, &GamePreferencesDock::onChannelMessageReceived);
-    connect(&channel, &IrcClient::Channel::part, this, &GamePreferencesDock::onUserParted);
-    connect(&channel, &IrcClient::Channel::quit, this, &GamePreferencesDock::onUserQuit);
-    connect(&channel, &IrcClient::Channel::kick, this, &GamePreferencesDock::onUserKicked);
-    connect(&channel, &IrcClient::Channel::nickChange, this, &GamePreferencesDock::onUserChangedNick);
+    connect(&channel, &IrcClient::Channel::channelMessage, this, &Dock::onChannelMessageReceived);
+    connect(&channel, &IrcClient::Channel::part, this, &Dock::onUserParted);
+    connect(&channel, &IrcClient::Channel::quit, this, &Dock::onUserQuit);
+    connect(&channel, &IrcClient::Channel::kick, this, &Dock::onUserKicked);
+    connect(&channel, &IrcClient::Channel::nickChange, this, &Dock::onUserChangedNick);
     channelName = channel.getName();
     playerName = Settings::getInstance().getInGameNick();
     addPlayer(ircClient->getUs().nick, playerName);
@@ -137,7 +137,7 @@ void GamePreferencesDock::onChannelJoined(const IrcClient::Channel &channel)
     sendGameTypeInformation(channel.getName());
 }
 
-void GamePreferencesDock::addPlayer(const QString &ircNick, const QString &gameNick)
+void Dock::addPlayer(const QString &ircNick, const QString &gameNick)
 {
     QList<QStandardItem*> itemList;
     for (int i = 0; i < preferencesModel->columnCount(); i ++) {
@@ -166,7 +166,7 @@ void GamePreferencesDock::addPlayer(const QString &ircNick, const QString &gameN
     ircNickToIndexMap[ircNick] = QPersistentModelIndex(preferencesModel->index(preferencesModel->rowCount() - 1, 0));
 }
 
-void GamePreferencesDock::updateGameType(const QString &ircNick, bool set, int gameTypeId)
+void Dock::updateGameType(const QString &ircNick, bool set, int gameTypeId)
 {
     if ((gameTypeId < 0) || (gameTypeId > GameType::NUMBER_OF_GAMETYPES - 1)) {
         return;
@@ -174,12 +174,12 @@ void GamePreferencesDock::updateGameType(const QString &ircNick, bool set, int g
     preferencesModel->setData(preferencesModel->index(ircNickToIndexMap[ircNick].row(), gameTypeId + 1), set ? "✔" : "");
 }
 
-void GamePreferencesDock::updatePlayerName(const QString &ircNick, const QString newPlayerName)
+void Dock::updatePlayerName(const QString &ircNick, const QString newPlayerName)
 {
     preferencesModel->setData(preferencesModel->index(ircNickToIndexMap[ircNick].row(), 0), newPlayerName);
 }
 
-void GamePreferencesDock::onChannelMessageReceived(const IrcClient::User &sender, const QString &message)
+void Dock::onChannelMessageReceived(const IrcClient::User &sender, const QString &message)
 {
     if (sender.nick == ircClient->getUs().nick) {
         return;
@@ -209,7 +209,7 @@ void GamePreferencesDock::onChannelMessageReceived(const IrcClient::User &sender
     }
 }
 
-void GamePreferencesDock::onPrivateMessageReceived(const IrcClient::User &sender, const QString &message)
+void Dock::onPrivateMessageReceived(const IrcClient::User &sender, const QString &message)
 {
     if (sender.nick == ircClient->getUs().nick) {
         return;
@@ -233,7 +233,7 @@ void GamePreferencesDock::onPrivateMessageReceived(const IrcClient::User &sender
     }
 }
 
-void GamePreferencesDock::onOurGameTypeModified(QStandardItem* item)
+void Dock::onOurGameTypeModified(QStandardItem* item)
 {
     if (item->row() != 0) {
         return;
@@ -243,12 +243,12 @@ void GamePreferencesDock::onOurGameTypeModified(QStandardItem* item)
     sendGameTypeChange(gamePreferences[gameTypeId], gameTypeId);
 }
 
-void GamePreferencesDock::sendGameTypeChange(bool set, int gameTypeId)
+void Dock::sendGameTypeChange(bool set, int gameTypeId)
 {
     ircClient->sendMessage(channelName, QString("GAMETYPEID %1 %2").arg(set ? "+" : "-").arg(gameTypeId));
 }
 
-void GamePreferencesDock::sendGameTypeInformation(const QString &target)
+void Dock::sendGameTypeInformation(const QString &target)
 {
     QString gameTypeIds;
     for (int i = 0; i < GameType::NUMBER_OF_GAMETYPES; i ++) {
@@ -261,7 +261,7 @@ void GamePreferencesDock::sendGameTypeInformation(const QString &target)
     }
 }
 
-void GamePreferencesDock::updateOurPlayerName(const QString &newPlayerName)
+void Dock::updateOurPlayerName(const QString &newPlayerName)
 {
     if (playerName == newPlayerName) {
         return;
@@ -271,28 +271,28 @@ void GamePreferencesDock::updateOurPlayerName(const QString &newPlayerName)
     sendOurName(channelName);
 }
 
-void GamePreferencesDock::sendOurName(const QString &target)
+void Dock::sendOurName(const QString &target)
 {
     ircClient->sendMessage(target, QString("NAME %1").arg(playerName));
 }
 
-void GamePreferencesDock::onUserParted(const IrcClient::User &user)
+void Dock::onUserParted(const IrcClient::User &user)
 {
     removePlayer(user.nick);
 }
 
-void GamePreferencesDock::onUserQuit(const IrcClient::User &user)
+void Dock::onUserQuit(const IrcClient::User &user)
 {
     removePlayer(user.nick);
 }
 
-void GamePreferencesDock::onUserKicked(const IrcClient::User& /*sender*/, const QString& /*message*/, const QString& recipient)
+void Dock::onUserKicked(const IrcClient::User& /*sender*/, const QString& /*message*/, const QString& recipient)
 {
     removePlayer(recipient);
 }
 
 
-void GamePreferencesDock::removePlayer(const QString &ircNick)
+void Dock::removePlayer(const QString &ircNick)
 {
     if (!ircNickToIndexMap.contains(ircNick)) {
         return;
@@ -301,7 +301,7 @@ void GamePreferencesDock::removePlayer(const QString &ircNick)
     ircNickToIndexMap.remove(ircNick);
 }
 
-void GamePreferencesDock::onUserChangedNick(const IrcClient::User& user, const QString& newNick)
+void Dock::onUserChangedNick(const IrcClient::User& user, const QString& newNick)
 {
     if (!ircNickToIndexMap.contains(user.nick)) {
         return;
@@ -310,7 +310,7 @@ void GamePreferencesDock::onUserChangedNick(const IrcClient::User& user, const Q
     ircNickToIndexMap.remove(user.nick);
 }
 
-void GamePreferencesDock::applySettings()
+void Dock::applySettings()
 {
     const Settings& settings = Settings::getInstance();
     const QVector<bool>& hideColumns = settings.getHiddenColumns();
@@ -324,17 +324,17 @@ void GamePreferencesDock::applySettings()
     updateOurPlayerName(settings.getInGameNick());
 }
 
-void GamePreferencesDock::showSettingsDialog()
+void Dock::showSettingsDialog()
 {
     Settings::getInstance().executeSettingsDialog(this);
 }
 
-void GamePreferencesDock::onNickAlreadyInUse()
+void Dock::onNickAlreadyInUse()
 {
     ircClient->sendRaw(QString("NICK %1").arg(getRandomIrcNick()));
 }
 
-QString GamePreferencesDock::getRandomIrcNick()
+QString Dock::getRandomIrcNick()
 {
     static bool init = false;
     if (!init) {

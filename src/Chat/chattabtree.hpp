@@ -21,10 +21,10 @@
 
 namespace Chat {
 
-class ChatTabTree : public QTreeWidget
+class TabTree : public QTreeWidget
 {
 public:
-    explicit ChatTabTree(QWidget *parent, int startingSize);
+    explicit TabTree(QWidget *parent, int startingSize);
     QSize sizeHint() const;
 
 private:

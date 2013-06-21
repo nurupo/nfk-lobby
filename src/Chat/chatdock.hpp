@@ -33,12 +33,12 @@
 
 namespace Chat {
 
-class ChatDock : public QDockWidget
+class Dock : public QDockWidget
 {
     Q_OBJECT
 public:
-    ChatDock(QWidget* parent);
-    ~ChatDock();
+    Dock(QWidget* parent);
+    ~Dock();
 
     static IrcClient::IrcClient* ircClient;
 

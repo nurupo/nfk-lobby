@@ -84,7 +84,7 @@ void ServerSettingsPage::applyChanges()
 
 void ServerSettingsPage::serverAddButtonClicked()
 {
-    ChatSettingsModifyServerDialog serverInfoDialog(this);
+    ModifyServerSettingsDialog serverInfoDialog(this);
     if (serverInfoDialog.exec() == QDialog::Accepted) {
         Settings::Server serverInfo = serverInfoDialog.getServerInformation();
         QStandardItem* name = new QStandardItem(serverInfo.name);
@@ -110,7 +110,7 @@ void ServerSettingsPage::serverEditButtonClicked()
     if (currentIndex == QModelIndex()) {
         return;
     }
-    ChatSettingsModifyServerDialog serverInfoDialog(this);
+    ModifyServerSettingsDialog serverInfoDialog(this);
     Settings::Server oldServerInfo = modifiedServerList[currentIndex.row()];
     serverInfoDialog.setServerInformation(oldServerInfo);
     if (serverInfoDialog.exec() == QDialog::Accepted) {

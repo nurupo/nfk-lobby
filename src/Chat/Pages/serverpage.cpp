@@ -52,7 +52,7 @@ void ServerPage::notice(const IrcClient::User &sender, const QString &notice)
 
 void ServerPage::ctcpRequest(const QString &target, const IrcClient::User &sender, const QString &request)
 {
-    if (sender.nick == ChatDock::ircClient->getUs().nick) {
+    if (sender.nick == Dock::ircClient->getUs().nick) {
         print(QString("Sent CTCP-%1 request to %2")
               .arg(request)
               .arg(target)
@@ -71,7 +71,7 @@ void ServerPage::ctcpRequest(const QString &target, const IrcClient::User &sende
 
 void ServerPage::ctcpReply(const QString &target, const IrcClient::User &sender, const QString &request, const QString &message)
 {
-    if (sender.nick == ChatDock::ircClient->getUs().nick) {
+    if (sender.nick == Dock::ircClient->getUs().nick) {
         print(QString("Sent CTCP-%1 reply to %2: %3")
               .arg(request)
               .arg(target)
@@ -113,7 +113,7 @@ void ServerPage::connecting(const QString &address, int port)
 
 void ServerPage::quit(const QString &message)
 {
-    const IrcClient::User& us = ChatDock::ircClient->getUs();
+    const IrcClient::User& us = Dock::ircClient->getUs();
     print(QString("*** %1 (%2@%3) has quit (%4)")
           .arg(us.nick)
           .arg(us.username)

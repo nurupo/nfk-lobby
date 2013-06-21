@@ -31,12 +31,12 @@
 
 namespace PlanetScanner {
 
-class PlanetScannerDock : public QDockWidget
+class Dock : public QDockWidget
 {
     Q_OBJECT
 public:
-    PlanetScannerDock(QWidget* parent);
-    ~PlanetScannerDock();
+    Dock(QWidget* parent);
+    ~Dock();
 
 private:
     QProcess* game;

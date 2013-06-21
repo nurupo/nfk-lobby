@@ -34,13 +34,13 @@
 
 namespace Chat {
 
-IrcClient::IrcClient* ChatDock::ircClient = new IrcClient::IrcClient();
+IrcClient::IrcClient* Dock::ircClient = new IrcClient::IrcClient();
 
-ChatDock::ChatDock(QWidget* parent) :
+Dock::Dock(QWidget* parent) :
     QDockWidget(parent)
 {
     Settings::getInstance().load();
-    connect(&Settings::getInstance(), &Settings::dataChanged, this, &ChatDock::applySettings);
+    connect(&Settings::getInstance(), &Settings::dataChanged, this, &Dock::applySettings);
 
     const QString dockName = "Chat";
     setObjectName(dockName);
@@ -69,7 +69,7 @@ ChatDock::ChatDock(QWidget* parent) :
     nickLabel->hide();
     inputLine = new QLineEdit(inputDockWidget);
 
-    connect(inputLine, &QLineEdit::returnPressed, this, &ChatDock::sendMessage);
+    connect(inputLine, &QLineEdit::returnPressed, this, &Dock::sendMessage);
     inputDockWidgetLayout->addWidget(nickLabel);
     inputDockWidgetLayout->addWidget(inputLine);
     inputDockWidgetLayout->setContentsMargins(2, 2, 2, 6);
@@ -84,7 +84,7 @@ ChatDock::ChatDock(QWidget* parent) :
     window->addDockWidget(Qt::LeftDockWidgetArea, tabDock);
     window->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     window->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    tabTree = new ChatTabTree(tabDock, 100);
+    tabTree = new TabTree(tabDock, 100);
     tabTree->setHeaderLabel("Chats");
     tabTree->setIndentation(8);
     tabTree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -92,15 +92,15 @@ ChatDock::ChatDock(QWidget* parent) :
     tabTree->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     tabDock->setWidget(tabTree);
     tabTree->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(tabTree, &QTreeWidget::itemSelectionChanged, this, &ChatDock::tabSelected);
-    connect(tabTree, &QTreeWidget::customContextMenuRequested, this, &ChatDock::showTabTreeContextMenu);
+    connect(tabTree, &QTreeWidget::itemSelectionChanged, this, &Dock::tabSelected);
+    connect(tabTree, &QTreeWidget::customContextMenuRequested, this, &Dock::showTabTreeContextMenu);
 
     QAction* connectAction = new QAction(QIcon(":/icons/connect.png"), "Connect", toolbar);
     QAction* disconnectAction = new QAction(QIcon(":/icons/disconnect.png"), "Disconnect", toolbar);
     QAction* settingsAction = toolbar->addAction(QIcon(":/icons/settings.png"), "Settings");
-    connect(connectAction, &QAction::triggered, this, &ChatDock::connectToServer);
-    connect(disconnectAction, &QAction::triggered, this, &ChatDock::disconnectFromServer);
-    connect(settingsAction, &QAction::triggered, this, &ChatDock::showSettingsDialog);
+    connect(connectAction, &QAction::triggered, this, &Dock::connectToServer);
+    connect(disconnectAction, &QAction::triggered, this, &Dock::disconnectFromServer);
+    connect(settingsAction, &QAction::triggered, this, &Dock::showSettingsDialog);
     toolbar->addActions(QList<QAction*>() << connectAction << disconnectAction << settingsAction);
 
     serverTab = new QTreeWidgetItem(tabTree, QStringList() << "IRC Server");
@@ -120,7 +120,7 @@ ChatDock::ChatDock(QWidget* parent) :
     userTree->setMinimumWidth(1);
     userTree->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     userDock->setWidget(userTree);
-    connect(userTree, &UserTree::privateActionTriggered, this, &ChatDock::startPrivate);
+    connect(userTree, &UserTree::privateActionTriggered, this, &Dock::startPrivate);
 
     topicDock = new QDockWidget(window);
     topicDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -134,8 +134,8 @@ ChatDock::ChatDock(QWidget* parent) :
     pages = new QStackedWidget(pagesWindow);
 
     serverPage = new ServerPage(serverTab, tabTree);
-    connect(serverPage, &ServerPage::connectActionTriggered,    this, &ChatDock::connectToServer);
-    connect(serverPage, &ServerPage::disconnectActionTriggered, this, &ChatDock::disconnectFromServer);
+    connect(serverPage, &ServerPage::connectActionTriggered,    this, &Dock::connectToServer);
+    connect(serverPage, &ServerPage::disconnectActionTriggered, this, &Dock::disconnectFromServer);
 
     pagesWindow->setCentralWidget(pages);
     pages->addWidget(serverPage);
@@ -148,7 +148,7 @@ ChatDock::ChatDock(QWidget* parent) :
 
     autojoinTimer = new QTimer(this);
     autojoinTimer->setSingleShot(true);
-    connect(autojoinTimer, &QTimer::timeout, this, &ChatDock::joinChannels);
+    connect(autojoinTimer, &QTimer::timeout, this, &Dock::joinChannels);
     applySettings();
 
     ircClient->setVersion(QString("%1 %2 by %3; build date: %4").arg(MainWindow::name).arg(MainWindow::version).arg(MainWindow::author).arg(MainWindow::buildDate));
@@ -161,10 +161,10 @@ ChatDock::ChatDock(QWidget* parent) :
     connect(ircClient, &IrcClient::IrcClient::connecting,         serverPage, &ServerPage::connecting);
     connect(ircClient, &IrcClient::IrcClient::disconnected,       serverPage, &ServerPage::disconnected);
     connect(ircClient, &IrcClient::IrcClient::userModeChanged,    serverPage, &ServerPage::userModeChanged);
-    connect(ircClient, &IrcClient::IrcClient::join,               this,       &ChatDock::joinedChannel);
-    connect(ircClient, &IrcClient::IrcClient::connected,          this,       &ChatDock::connected);
-    connect(ircClient, &IrcClient::IrcClient::privateMessage,     this,       &ChatDock::routePrivateMessage);
-    connect(ircClient, &IrcClient::IrcClient::action,             this,       &ChatDock::routePrivateAction);
+    connect(ircClient, &IrcClient::IrcClient::join,               this,       &Dock::joinedChannel);
+    connect(ircClient, &IrcClient::IrcClient::connected,          this,       &Dock::connected);
+    connect(ircClient, &IrcClient::IrcClient::privateMessage,     this,       &Dock::routePrivateMessage);
+    connect(ircClient, &IrcClient::IrcClient::action,             this,       &Dock::routePrivateAction);
     connect(ircClient, &IrcClient::IrcClient::nickChange,         nickLabel,  &QLabel::setText);
     connect(ircClient, &IrcClient::IrcClient::connected,          nickLabel,  &QLabel::show);
     connect(ircClient, &IrcClient::IrcClient::disconnected,       nickLabel,  &QLabel::hide);
@@ -173,7 +173,7 @@ ChatDock::ChatDock(QWidget* parent) :
     }
 }
 
-ChatDock::~ChatDock()
+Dock::~Dock()
 {
     QMutableHashIterator<QString, ChannelPage*> iterator (channelPages);
     while (iterator.hasNext()) {
@@ -182,7 +182,7 @@ ChatDock::~ChatDock()
     delete ircClient;
 }
 
-void ChatDock::joinedChannel(const IrcClient::Channel& channel)
+void Dock::joinedChannel(const IrcClient::Channel& channel)
 {
     ChannelPage* channelPage;
 
@@ -206,14 +206,14 @@ void ChatDock::joinedChannel(const IrcClient::Channel& channel)
     connect(&channel, &IrcClient::Channel::topicChanged,       channelPage, &ChannelPage::topicChanged);
     connect(&channel, &IrcClient::Channel::modeChanged,        channelPage, &ChannelPage::modeChanged);
     connect(&channel, &IrcClient::Channel::kick,               channelPage, &ChannelPage::kick);
-    connect(&channel, &IrcClient::Channel::topicChanged,       this,        &ChatDock::changeTopic);
-    connect(&channel, &IrcClient::Channel::topicTextResponse,  this,        &ChatDock::changeTopic);
+    connect(&channel, &IrcClient::Channel::topicChanged,       this,        &Dock::changeTopic);
+    connect(&channel, &IrcClient::Channel::topicTextResponse,  this,        &Dock::changeTopic);
     connect(&channelPage->getUserTreeModel(), &UserTreeModel::branchAdded, userTree, &UserTree::expand);
 
     switchToTab(channelPage->getTab());
 }
 
-void ChatDock::switchToTab(QTreeWidgetItem* tab)
+void Dock::switchToTab(QTreeWidgetItem* tab)
 {
     QList<QTreeWidgetItem*> selectedItems = tabTree->selectedItems();
     for (int i = 0; i < selectedItems.size(); i++) {
@@ -222,14 +222,14 @@ void ChatDock::switchToTab(QTreeWidgetItem* tab)
     tab->setSelected(true);
 }
 
-void ChatDock::startPrivate(const QString &nick)
+void Dock::startPrivate(const QString &nick)
 {
     PrivatePage* privatePage = createPrivatePage(nick);
     switchToTab(privatePage->getTab());
 }
 
 /*This method should be only invoked from joinedChannel because it sets needed connects*/
-ChannelPage* ChatDock::createChannelPage(const QString& channelName)
+ChannelPage* Dock::createChannelPage(const QString& channelName)
 {
     ChannelPage* channelPage;
     QTreeWidgetItem* channelTab;
@@ -238,9 +238,9 @@ ChannelPage* ChatDock::createChannelPage(const QString& channelName)
     serverTab->addChild(channelTab);
     channelPage = new ChannelPage(channelTab, tabTree);
     connect(ircClient, &IrcClient::IrcClient::disconnected, channelPage, &ChannelPage::disable);
-    connect(channelPage, &ChannelPage::partActionTriggered, this, &ChatDock::partChannelAction);
-    connect(channelPage, &ChannelPage::joinActionTriggered, this, &ChatDock::joinChannelAction);
-    connect(channelPage, &ChannelPage::closeActionTriggered, this, &ChatDock::closeChannelAction);
+    connect(channelPage, &ChannelPage::partActionTriggered, this, &Dock::partChannelAction);
+    connect(channelPage, &ChannelPage::joinActionTriggered, this, &Dock::joinChannelAction);
+    connect(channelPage, &ChannelPage::closeActionTriggered, this, &Dock::closeChannelAction);
     pages->addWidget(channelPage);
     if (!channelPages.size()) {
         tabTree->expandAll();
@@ -251,7 +251,7 @@ ChannelPage* ChatDock::createChannelPage(const QString& channelName)
 
 /*TODO: add Close action to the Channel tabContextMenu and trigger removeChannel*/
 
-void ChatDock::deleteChannelPage(const QString& channelName)
+void Dock::deleteChannelPage(const QString& channelName)
 {
     ChannelPage* channelPage = channelPages.take(channelName);
     QTreeWidgetItem* channelTab = channelPage->getTab();
@@ -263,7 +263,7 @@ void ChatDock::deleteChannelPage(const QString& channelName)
 }
 
 
-void ChatDock::tabSelected()
+void Dock::tabSelected()
 {
     QList<QTreeWidgetItem*> selectedItems = tabTree->selectedItems();
 
@@ -313,13 +313,13 @@ void ChatDock::tabSelected()
     inputLine->setFocus();
 }
 
-void ChatDock::showNicksFor(const QString& channel)
+void Dock::showNicksFor(const QString& channel)
 {
     userTree->setModel(&channelPages[channel]->getUserTreeModel());
     userTree->expandAll();
 }
 
-void ChatDock::changeTopic(const QString& topicText)
+void Dock::changeTopic(const QString& topicText)
 {
     const IrcClient::Channel* channel = static_cast<IrcClient::Channel*>(sender());
     QString tabName = getSelectedTabName();
@@ -328,7 +328,7 @@ void ChatDock::changeTopic(const QString& topicText)
     }
 }
 
-void ChatDock::sendMessage()
+void Dock::sendMessage()
 {
     QString tabName = getSelectedTabName();
     if (tabName.isEmpty()) {
@@ -370,13 +370,13 @@ void ChatDock::sendMessage()
     }
 }
 
-QString ChatDock::getSelectedTabName() const
+QString Dock::getSelectedTabName() const
 {
     QTreeWidgetItem* tabItem = tabTree->selectedItems().at(0);
     return tabItem ? tabItem->text(0) : QString();
 }
 
-void ChatDock::connected()
+void Dock::connected()
 {
     const Settings& settings = Settings::getInstance();
     if (settings.getAutoIdentify()) {
@@ -391,7 +391,7 @@ void ChatDock::connected()
     }
 }
 
-void ChatDock::showTabTreeContextMenu(const QPoint &pos)
+void Dock::showTabTreeContextMenu(const QPoint &pos)
 {
     QPoint globalPos = tabTree->viewport()->mapToGlobal(pos);
     globalPos.setX(globalPos.x() + 1);
@@ -414,7 +414,7 @@ void ChatDock::showTabTreeContextMenu(const QPoint &pos)
     menu->exec(globalPos);
 }
 
-void ChatDock::connectToServer()
+void Dock::connectToServer()
 {
     const Settings& settings = Settings::getInstance();
     //ircSrv->connect("irc.wenet.ru", 6667, "", "wolferiac", "username", "windows-1251");
@@ -425,7 +425,7 @@ void ChatDock::connectToServer()
     }
 }
 
-void ChatDock::joinChannels()
+void Dock::joinChannels()
 {
     const QList<Settings::Channel>& channels = Settings::getInstance().getAutojoinChannelList();
     for (const Settings::Channel& channel : channels) {
@@ -433,25 +433,25 @@ void ChatDock::joinChannels()
     }
 }
 
-void ChatDock::disconnectFromServer()
+void Dock::disconnectFromServer()
 {
     ircClient->disconnect();
 }
 
-void ChatDock::partChannelAction()
+void Dock::partChannelAction()
 {
     QString channel = getSelectedTabName();
     /*rename sendPart to partChannel*/
     ircClient->sendPart(channel);
 }
 
-void ChatDock::joinChannelAction()
+void Dock::joinChannelAction()
 {
     QString channel = getSelectedTabName();
     ircClient->joinChannel(channel);
 }
 
-void ChatDock::routePrivateMessage(const IrcClient::User &sender, const QString &message, const QString &target)
+void Dock::routePrivateMessage(const IrcClient::User &sender, const QString &message, const QString &target)
 {
     QString pageName;
     if (sender.nick == ircClient->getUs().nick) {
@@ -463,7 +463,7 @@ void ChatDock::routePrivateMessage(const IrcClient::User &sender, const QString 
     getPrivatePage(pageName)->privateMessage(sender, message);
 }
 
-void ChatDock::routePrivateAction(const IrcClient::User &sender, const QString &message, const QString &target)
+void Dock::routePrivateAction(const IrcClient::User &sender, const QString &message, const QString &target)
 {
     QString pageName;
     if (sender.nick == ircClient->getUs().nick) {
@@ -475,7 +475,7 @@ void ChatDock::routePrivateAction(const IrcClient::User &sender, const QString &
     getPrivatePage(pageName)->action(sender, message);
 }
 
-PrivatePage* ChatDock::getPrivatePage(QString &pageName)
+PrivatePage* Dock::getPrivatePage(QString &pageName)
 {
     PrivatePage* privatePage;
     if (!privatePages.contains(pageName)) {
@@ -486,7 +486,7 @@ PrivatePage* ChatDock::getPrivatePage(QString &pageName)
     return privatePage;
 }
 
-PrivatePage* ChatDock::createPrivatePage(const QString &pageName)
+PrivatePage* Dock::createPrivatePage(const QString &pageName)
 {
     if (!privatePages.contains(pageName)) {
         PrivatePage* privatePage;
@@ -496,7 +496,7 @@ PrivatePage* ChatDock::createPrivatePage(const QString &pageName)
         privatePage = new PrivatePage(privateTab, tabTree);
         connect(ircClient, &IrcClient::IrcClient::disconnected,   privatePage, &PrivatePage::disable);
         connect(ircClient, &IrcClient::IrcClient::connected,      privatePage, &PrivatePage::enable);
-        connect(privatePage, &PrivatePage::closeActionTriggered, this, &ChatDock::deletePrivatePage);
+        connect(privatePage, &PrivatePage::closeActionTriggered, this, &Dock::deletePrivatePage);
         pages->addWidget(privatePage);
         if (!privatePages.size()) {
             tabTree->expandAll();
@@ -508,7 +508,7 @@ PrivatePage* ChatDock::createPrivatePage(const QString &pageName)
     }
 }
 
-void ChatDock::deletePrivatePage()
+void Dock::deletePrivatePage()
 {
     PrivatePage* privatePage = privatePages.take(getSelectedTabName());
     QTreeWidgetItem* privateTab = privatePage->getTab();
@@ -518,12 +518,12 @@ void ChatDock::deletePrivatePage()
     delete privatePage;
 }
 
-void ChatDock::showSettingsDialog()
+void Dock::showSettingsDialog()
 {
     Settings::getInstance().executeSettingsDialog(this);
 }
 
-void ChatDock::applySettings()
+void Dock::applySettings()
 {
     const Settings& settings = Settings::getInstance();
     tabTree->setFont(settings.getChatListFont());
@@ -532,7 +532,7 @@ void ChatDock::applySettings()
     autojoinTimer->setInterval(settings.getTimeToWaitBeforeAutojoining() * 1000);
 }
 
-void ChatDock::closeChannelAction()
+void Dock::closeChannelAction()
 {
     QString channel = getSelectedTabName();
     /*rename sendPart to partChannel*/

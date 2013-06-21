@@ -25,7 +25,7 @@
 
 namespace Chat {
 
-ChatSettingsModifyServerDialog::ChatSettingsModifyServerDialog(QWidget* parent) :
+ModifyServerSettingsDialog::ModifyServerSettingsDialog(QWidget* parent) :
     QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -45,7 +45,7 @@ ChatSettingsModifyServerDialog::ChatSettingsModifyServerDialog(QWidget* parent) 
     layout->addWidget(buttonBox);
 }
 
-QGroupBox* ChatSettingsModifyServerDialog::buildServerInfoGroup()
+QGroupBox* ModifyServerSettingsDialog::buildServerInfoGroup()
 {
     QGroupBox* group = new QGroupBox("Server info", this);
     QGridLayout* groupLayout = new QGridLayout(group);
@@ -98,7 +98,7 @@ QGroupBox* ChatSettingsModifyServerDialog::buildServerInfoGroup()
     return group;
 }
 
-void ChatSettingsModifyServerDialog::setServerInformation(const Settings::Server &server)
+void ModifyServerSettingsDialog::setServerInformation(const Settings::Server &server)
 {
     nameEdit->setText(server.name);
     addressEdit->setText(server.address);
@@ -107,7 +107,7 @@ void ChatSettingsModifyServerDialog::setServerInformation(const Settings::Server
     encodingComboBox->setCurrentIndex(encodingComboBox->findText(server.encoding));
 }
 
-Settings::Server ChatSettingsModifyServerDialog::getServerInformation()
+Settings::Server ModifyServerSettingsDialog::getServerInformation()
 {
     Settings::Server server;
 
