@@ -46,6 +46,10 @@ BasicSettingsDialog::BasicSettingsDialog(QWidget *parent) :
     connect(listWidget, &QListWidget::currentRowChanged, stackedWidget, &QStackedWidget::setCurrentIndex);
 }
 
+BasicSettingsDialog::~BasicSettingsDialog()
+{
+}
+
 void BasicSettingsDialog::addPage(const QString& iconPath, const QString& name, AbstractSettingsPage* page)
 {
     listWidget->addItem(new QListWidgetItem(QIcon(iconPath), name, listWidget));

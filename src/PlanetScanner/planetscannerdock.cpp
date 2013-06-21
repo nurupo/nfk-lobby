@@ -15,7 +15,7 @@
 */
 
 #include "planetscannerdock.hpp"
-#include "Settings\planetscannersettings.hpp"
+#include "Settings/planetscannersettings.hpp"
 
 #include <QAction>
 #include <QClipboard>

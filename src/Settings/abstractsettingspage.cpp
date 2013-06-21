@@ -20,3 +20,7 @@ AbstractSettingsPage::AbstractSettingsPage(QWidget *parent) :
     QWidget(parent)
 {
 }
+
+AbstractSettingsPage::~AbstractSettingsPage()
+{
+}

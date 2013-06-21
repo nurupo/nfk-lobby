@@ -23,7 +23,7 @@ class AbstractSettingsPage : public QWidget
 {
 public:
     explicit AbstractSettingsPage(QWidget* parent);
-    virtual ~AbstractSettingsPage() = default;
+    virtual ~AbstractSettingsPage();
 
     virtual void applyChanges() = 0;
     virtual void buildGui() = 0;

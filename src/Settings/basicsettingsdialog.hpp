@@ -27,7 +27,7 @@ class BasicSettingsDialog : public QDialog
 {
 public:
     explicit BasicSettingsDialog(QWidget* parent);
-    virtual ~BasicSettingsDialog() = default;
+    virtual ~BasicSettingsDialog();
     void accept();
 
 protected:
