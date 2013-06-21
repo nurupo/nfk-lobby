@@ -38,10 +38,10 @@ SOURCES += \
     ../../src/Chat/Settings/chatchannelsettingspage.cpp \
     ../../src/Chat/Settings/chatfontsettingspage.cpp \
     ../../src/Chat/Settings/chatgeneralsettingspage.cpp \
+    ../../src/Chat/Settings/chatmodifyserversettingsdialog.cpp \
     ../../src/Chat/Settings/chatserversettingspage.cpp \
     ../../src/Chat/Settings/chatsettings.cpp \
     ../../src/Chat/Settings/chatsettingsdialog.cpp \
-    ../../src/Chat/Settings/chatsettingsmodifyserverdialog.cpp \
     ../../src/Chat/Settings/customhinttreeview.cpp \
     ../../src/GamePreferences/checkboxdelegate.cpp \
     ../../src/GamePreferences/gamepreferencesdock.cpp \
@@ -89,10 +89,10 @@ HEADERS  += \
     ../../src/Chat/Settings/chatchannelsettingspage.hpp \
     ../../src/Chat/Settings/chatfontsettingspage.hpp \
     ../../src/Chat/Settings/chatgeneralsettingspage.hpp \
+    ../../src/Chat/Settings/chatmodifyserversettingsdialog.hpp \
     ../../src/Chat/Settings/chatserversettingspage.hpp \
     ../../src/Chat/Settings/chatsettings.hpp \
     ../../src/Chat/Settings/chatsettingsdialog.hpp \
-    ../../src/Chat/Settings/chatsettingsmodifyserverdialog.hpp \
     ../../src/Chat/Settings/customhinttreeview.hpp \
     ../../src/GamePreferences/checkboxdelegate.hpp \
     ../../src/GamePreferences/gamepreferencesdock.hpp \

@@ -14,8 +14,8 @@
     See the COPYING file for more details.
 */
 
+#include "chatmodifyserversettingsdialog.hpp"
 #include "chatserversettingspage.hpp"
-#include "chatsettingsmodifyserverdialog.hpp"
 #include "customhinttreeview.hpp"
 
 #include <QPushButton>

@@ -14,7 +14,7 @@
     See the COPYING file for more details.
 */
 
-#include "chatsettingsmodifyserverdialog.hpp"
+#include "chatmodifyserversettingsdialog.hpp"
 
 #include <QComboBox>
 #include <QDialogButtonBox>
