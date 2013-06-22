@@ -47,7 +47,7 @@ signals:
     void gameInfoRecieved(const Planet &planet, const QList<Game> &status);
     void connected(const Planet &planet);
     void error(const Planet &planet, QAbstractSocket::SocketError socketError);
-    void errorCeared(const Planet &planet);
+    void errorCleared(const Planet &planet);
 
 private slots:
     void parseServerResponse();

@@ -69,7 +69,7 @@ void Planet::parseServerResponse()
 
     if (errorState) {
         errorState = false;
-        emit errorCeared(*this);
+        emit errorCleared(*this);
     }
     if (response.size() < 2) {
         /*too short response*/
