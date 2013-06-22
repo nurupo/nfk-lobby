@@ -16,7 +16,6 @@
 
 #include "../mainwindow.hpp"
 #include "../Settings/settings.hpp"
-#include "checkboxdelegate.hpp"
 #include "gamepreferenceswindow.hpp"
 #include "Settings/gamepreferencessettings.hpp"
 
@@ -64,11 +63,9 @@ Window::Window(QWidget *parent) :
     headers.append(GameType::getNames());
     preferencesModel->setHorizontalHeaderLabels(headers);
     preferencesView->setModel(sortModel);
-    connect(preferencesModel, &QStandardItemModel::itemChanged, this, &Window::onOurGameTypeModified);
+    connect(preferencesView, &QTableView::clicked, this, &Window::onItemClicked);
     for (int i = 1; i < preferencesModel->columnCount(); i ++) {
         preferencesView->setColumnWidth(i, 50);
-        CheckBoxDelegate* checkBoxDelegate = new CheckBoxDelegate(preferencesView);
-        preferencesView->setItemDelegateForColumn(i, checkBoxDelegate);
     }
     preferencesView->setColumnWidth(0, 150);
 
@@ -142,12 +139,11 @@ void Window::addPlayer(const QString &ircNick, const QString &gameNick)
         item->setTextAlignment(Qt::AlignCenter);
         item->setFlags(Qt::ItemIsEnabled);
         if (preferencesModel->rowCount() == 0) {
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
             QColor color(215, 215, 215);
             item->setData(color, Qt::BackgroundRole);
             if (i > 0) {
                 const QVector<bool>& defaultPreferences = Settings::getInstance().getDefaultPreferences();
-                item->setData(defaultPreferences.at(i-1) ? "✔" : "", Qt::EditRole);
+                item->setText(defaultPreferences.at(i-1) ? "✔" : "");
                 gamePreferences[i-1] = defaultPreferences.at(i-1);
             }
         }
@@ -230,16 +226,6 @@ void Window::onPrivateMessageReceived(const IrcClient::User &sender, const QStri
     }
 }
 
-void Window::onOurGameTypeModified(QStandardItem* item)
-{
-    if (item->row() != 0) {
-        return;
-    }
-    const int gameTypeId = item->column() - 1;
-    gamePreferences[gameTypeId] = item->data(Qt::EditRole).toString() == "✔";
-    sendGameTypeChange(gamePreferences[gameTypeId], gameTypeId);
-}
-
 void Window::sendGameTypeChange(bool set, int gameTypeId)
 {
     ircClient->sendMessage(channelName, QString("GAMETYPEID %1 %2").arg(set ? "+" : "-").arg(gameTypeId));
@@ -287,7 +273,6 @@ void Window::onUserKicked(const IrcClient::User& /*sender*/, const QString& /*me
 {
     removePlayer(recipient);
 }
-
 
 void Window::removePlayer(const QString &ircNick)
 {
@@ -339,6 +324,22 @@ QString Window::getRandomIrcNick()
         init = true;
     }
     return QString("nfkl_gp%1").arg(rand() % 100000);
+}
+
+void Window::onItemClicked(const QModelIndex& index)
+{
+    if (index.row() == 0 && index.column() > 0) {
+        QStandardItem* item = preferencesModel->itemFromIndex(sortModel->mapToSource(index));
+        bool set = item->text() == "✔";
+        if (set) {
+            item->setText("");
+        } else {
+            item->setText("✔");
+        }
+        const int gameTypeId = item->column() - 1;
+        gamePreferences[gameTypeId] = !set;
+        sendGameTypeChange(gamePreferences[gameTypeId], gameTypeId);
+    }
 }
 
 } // namespace GamePreferences

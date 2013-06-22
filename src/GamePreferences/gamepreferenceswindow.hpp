@@ -68,12 +68,12 @@ private slots:
     void onChannelJoined(const IrcClient::Channel &channel);
     void onChannelMessageReceived(const IrcClient::User& sender, const QString& message);
     void onPrivateMessageReceived(const IrcClient::User& sender, const QString& message);
-    void onOurGameTypeModified(QStandardItem* item);
     void onUserParted(const IrcClient::User &user);
     void onUserQuit(const IrcClient::User &user);
     void onUserKicked(const IrcClient::User& sender, const QString& message, const QString& recipient);
     void onUserChangedNick(const IrcClient::User& user, const QString& newNick);
     void onNickAlreadyInUse();
+    void onItemClicked(const QModelIndex& index);
     void applySettings();
     void showSettingsDialog();
 

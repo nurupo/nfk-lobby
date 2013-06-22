@@ -43,7 +43,6 @@ SOURCES += \
     ../../src/Chat/Settings/chatsettings.cpp \
     ../../src/Chat/Settings/chatsettingsdialog.cpp \
     ../../src/Chat/Settings/customhinttreeview.cpp \
-    ../../src/GamePreferences/checkboxdelegate.cpp \
     ../../src/GamePreferences/gamepreferencesdock.cpp \
     ../../src/GamePreferences/gamepreferenceswindow.cpp \
     ../../src/GamePreferences/gametype.cpp \
@@ -95,7 +94,6 @@ HEADERS  += \
     ../../src/Chat/Settings/chatsettings.hpp \
     ../../src/Chat/Settings/chatsettingsdialog.hpp \
     ../../src/Chat/Settings/customhinttreeview.hpp \
-    ../../src/GamePreferences/checkboxdelegate.hpp \
     ../../src/GamePreferences/gamepreferencesdock.hpp \
     ../../src/GamePreferences/gamepreferenceswindow.hpp \
     ../../src/GamePreferences/gametype.hpp \
