@@ -20,7 +20,6 @@
 #include "../chatwindow.hpp"
 #include "channelpage.hpp"
 
-#include <QDockWidget>
 #include <QHashIterator>
 #include <QLineEdit>
 #include <QTime>

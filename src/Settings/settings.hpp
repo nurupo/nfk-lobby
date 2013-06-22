@@ -1,8 +1,8 @@
 /*
     Copyright (C) 2013 by Maxim Biro <nurupo.contributions@gmail.com>
-
+    
     This file is part of NFK Lobby.
-
+    
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -10,36 +10,25 @@
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
+    
     See the COPYING file for more details.
 */
 
-#ifndef MAINWINDOW_HPP
-#define MAINWINDOW_HPP
+#ifndef SETTINGS_HPP
+#define SETTINGS_HPP
 
 #include <QMainWindow>
 
-class MainWindow : public QMainWindow
+class Settings
 {
-    Q_OBJECT
-    
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    Settings();
 
-    static const QString name;
-    static const QString version;
-    static const QString buildDate;
-    static const QString author;
-    static const QString years;
+    static void saveWindow(const QMainWindow* window);
+    static void loadWindow(QMainWindow* window);
 
-private slots:
-    void tabsTopActionTriggered();
-    void tabsLeftActionTriggered();
-    void tabsRightActionTriggered();
-    void tabsBottomActionTriggered();
-    void aboutAppActionTriggered();
+    static const QString FILENAME;
 
 };
 
-#endif // MAINWINDOW_HPP
+#endif // SETTINGS_HPP

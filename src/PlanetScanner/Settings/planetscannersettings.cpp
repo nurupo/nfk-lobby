@@ -14,6 +14,7 @@
     See the COPYING file for more details.
 */
 
+#include "../../Settings/settings.hpp"
 #include "planetscannersettings.hpp"
 #include "settingsdialog.hpp"
 
@@ -38,7 +39,7 @@ void Settings::load()
         return;
     }
 
-    QSettings s("settings.ini", QSettings::IniFormat);
+    QSettings s(::Settings::FILENAME, QSettings::IniFormat);
     s.beginGroup("PlanetScanner");
 
         s.beginGroup("Game");
@@ -96,7 +97,7 @@ void Settings::load()
 
 void Settings::save()
 {
-    QSettings s("settings.ini", QSettings::IniFormat);
+    QSettings s(::Settings::FILENAME, QSettings::IniFormat);
     s.beginGroup("PlanetScanner");
 
         s.beginGroup("Game");

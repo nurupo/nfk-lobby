@@ -15,6 +15,7 @@
 */
 
 #include "../mainwindow.hpp"
+#include "../Settings/settings.hpp"
 #include "checkboxdelegate.hpp"
 #include "gamepreferenceswindow.hpp"
 #include "Settings/gamepreferencessettings.hpp"
@@ -34,6 +35,8 @@ namespace GamePreferences {
 Window::Window(QWidget *parent) :
     QMainWindow(parent)
 {
+    setObjectName("GamePreferencesWindow");
+
     Settings::getInstance().load();
     connect(&Settings::getInstance(), &Settings::dataChanged, this, &Window::applySettings);
 
@@ -81,14 +84,17 @@ Window::Window(QWidget *parent) :
         gamePreferences[i] = false;
     }
 
-    applySettings();
-
     setCentralWidget(preferencesView);
+
+    applySettings();
+    ::Settings::loadWindow(this);
 }
 
 Window::~Window()
 {
     delete ircClient;
+
+    ::Settings::saveWindow(this);
 }
 
 void Window::connectToServer()

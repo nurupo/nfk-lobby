@@ -24,6 +24,7 @@
 #include "topiclabel.hpp"
 #include "usertree.hpp"
 
+#include <QDockWidget>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMenu>

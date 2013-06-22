@@ -14,6 +14,7 @@
     See the COPYING file for more details.
 */
 
+#include "../Settings/settings.hpp"
 #include "chattabtree.hpp"
 #include "chatwindow.hpp"
 #include "mainwindow.hpp"
@@ -21,7 +22,6 @@
 #include "usertree.hpp"
 
 #include <QAction>
-#include <QDockWidget>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLineEdit>
@@ -40,6 +40,8 @@ IrcClient::IrcClient* Window::ircClient = new IrcClient::IrcClient();
 Window::Window(QWidget* parent) :
     QMainWindow(parent)
 {
+    setObjectName("ChatWindow");
+
     Settings::getInstance().load();
     connect(&Settings::getInstance(), &Settings::dataChanged, this, &Window::applySettings);
 
@@ -53,6 +55,7 @@ Window::Window(QWidget* parent) :
     //connect(refreshAction, SIGNAL(triggered()), this, SLOT(refreshPlanets()));
 
     QDockWidget* inputDock = new QDockWidget(this);
+    inputDock->setObjectName("Input dock");
     inputDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     inputDock->setTitleBarWidget(new QWidget(inputDock));
     inputDock->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -72,6 +75,7 @@ Window::Window(QWidget* parent) :
     inputDock->setWidget(inputDockWidget);
 
     QDockWidget* tabDock = new QDockWidget(this);
+    tabDock->setObjectName("Tab dock");
     tabDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     tabDock->setTitleBarWidget(new QWidget(tabDock));
     tabDock->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -101,6 +105,7 @@ Window::Window(QWidget* parent) :
     tabTree->addTopLevelItem(serverTab);
 
     userDock = new QDockWidget(this);
+    userDock->setObjectName("User dock");
     userDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     userDock->setTitleBarWidget(new QWidget(userDock));
     userDock->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -117,6 +122,7 @@ Window::Window(QWidget* parent) :
     connect(userTree, &UserTree::privateActionTriggered, this, &Window::startPrivate);
 
     topicDock = new QDockWidget(this);
+    topicDock->setObjectName("Topic dock");
     topicDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
     topicDock->setTitleBarWidget(new QWidget(topicDock));
     topicDock->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -163,15 +169,20 @@ Window::Window(QWidget* parent) :
     if (Settings::getInstance().getAutoConnect()) {
         connectToServer();
     }
+
+    ::Settings::loadWindow(this);
 }
 
 Window::~Window()
 {
+
     QMutableHashIterator<QString, ChannelPage*> iterator (channelPages);
     while (iterator.hasNext()) {
         delete iterator.next().value();
     }
     delete ircClient;
+
+    ::Settings::saveWindow(this);
 }
 
 void Window::joinedChannel(const IrcClient::Channel& channel)
@@ -527,7 +538,7 @@ void Window::applySettings()
 void Window::closeChannelAction()
 {
     QString channel = getSelectedTabName();
-    /*rename sendPart to partChannel*/
+    //FIXME: rename sendPart to partChannel
     ircClient->sendPart(channel);
     deleteChannelPage(channel);
 }

@@ -14,6 +14,7 @@
     See the COPYING file for more details.
 */
 
+#include "../../Settings/settings.hpp"
 #include "chatsettings.hpp"
 #include "chatsettingsdialog.hpp"
 
@@ -190,7 +191,7 @@ void Settings::load()
         return;
     }
 
-    QSettings s("settings.ini", QSettings::IniFormat);
+    QSettings s(::Settings::FILENAME, QSettings::IniFormat);
     s.beginGroup("Chat");
 
         s.beginGroup("General");
@@ -245,9 +246,11 @@ void Settings::load()
     loaded = true;
 }
 
+
+
 void Settings::save()
 {
-    QSettings s("settings.ini", QSettings::IniFormat);
+    QSettings s(::Settings::FILENAME, QSettings::IniFormat);
     s.beginGroup("Chat");
 
         s.beginGroup("General");

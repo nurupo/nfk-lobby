@@ -14,9 +14,10 @@
     See the COPYING file for more details.
 */
 
+#include "../../Settings/settings.hpp"
+#include "../gametype.hpp"
 #include "gamepreferencessettings.hpp"
 #include "gamepreferencessettingsdialog.hpp"
-#include "../gametype.hpp"
 
 #include <QSettings>
 
@@ -70,7 +71,7 @@ void Settings::load()
         return;
     }
 
-    QSettings s("settings.ini", QSettings::IniFormat);
+    QSettings s(::Settings::FILENAME, QSettings::IniFormat);
     s.beginGroup("GamePreferences");
 
         s.beginGroup("General");
@@ -97,7 +98,7 @@ void Settings::load()
 
 void Settings::save()
 {
-    QSettings settings("settings.ini", QSettings::IniFormat);
+    QSettings settings(::Settings::FILENAME, QSettings::IniFormat);
     settings.beginGroup("GamePreferences");
 
         settings.beginGroup("General");

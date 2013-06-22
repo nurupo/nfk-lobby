@@ -19,6 +19,7 @@
 #include "GamePreferences/gamepreferencesdock.hpp"
 #include "mainwindow.hpp"
 #include "PlanetScanner/planetscannerdock.hpp"
+#include "Settings/settings.hpp"
 
 #include <QApplication>
 #include <QDockWidget>
@@ -30,17 +31,19 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
-QString MainWindow::name = "NFK Lobby";
-QString MainWindow::version = "0.1.0";
-QString MainWindow::buildDate = __DATE__;
-QString MainWindow::author = "Maxim Biro";
-QString MainWindow::years = "2013";
+//NOTE: should I move these constants somewhere else?
+const QString MainWindow::name = "NFK Lobby";
+const QString MainWindow::version = "0.1.0";
+const QString MainWindow::buildDate = __DATE__;
+const QString MainWindow::author = "Maxim Biro";
+const QString MainWindow::years = "2013";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     this->setGeometry(700, 350, 1000, 400);
     this->setWindowTitle(name);
+    this->setObjectName("MainWindow");
     this->setDockNestingEnabled(true);
 
     PlanetScanner::Dock* scannerDock = new PlanetScanner::Dock(this);
@@ -79,21 +82,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(aboutAppAction, &QAction::triggered, this, &MainWindow::aboutAppActionTriggered);
     aboutMenu->addActions(QList<QAction*>() << aboutQtAction << aboutAppAction);
-    applySettings();
+
+    ::Settings::loadWindow(this);
 }
 
 MainWindow::~MainWindow()
 {
-}
-
-void MainWindow::closeEvent(QCloseEvent *event)
-{
-    QSettings settings("settings.ini", QSettings::IniFormat);
-    settings.beginGroup("MainWindow");
-    settings.setValue("geometry", saveGeometry());
-    settings.setValue("state", saveState());
-    settings.endGroup();
-    QMainWindow::closeEvent(event);
+    Settings::saveWindow(this);
 }
 
 void MainWindow::tabsTopActionTriggered()
@@ -120,13 +115,4 @@ void MainWindow::aboutAppActionTriggered()
 {
     AboutDialog dialog(this);
     dialog.exec();
-}
-
-void MainWindow::applySettings()
-{
-    QSettings settings("settings.ini", QSettings::IniFormat);
-    settings.beginGroup("MainWindow");
-    restoreGeometry(settings.value("geometry").toByteArray());
-    restoreState(settings.value("state").toByteArray());
-    settings.endGroup();
 }

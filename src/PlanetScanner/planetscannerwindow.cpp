@@ -14,6 +14,7 @@
     See the COPYING file for more details.
 */
 
+#include "../Settings/settings.hpp"
 #include "planetscannerwindow.hpp"
 #include "Settings/planetscannersettings.hpp"
 
@@ -37,6 +38,7 @@ namespace PlanetScanner {
 Window::Window(QWidget* parent):
     QMainWindow(parent)
 {
+    setObjectName("PlanetScannerWindow");
 
     QToolBar* toolbar = new QToolBar(this);
     toolbar->setIconSize(QSize(24, 24));
@@ -86,6 +88,8 @@ Window::Window(QWidget* parent):
     connect(&settings, &Settings::dataChanged, this, &Window::applyChangedSettings);
     settings.load();
     applyChangedSettings();
+
+    ::Settings::loadWindow(this);
 }
 
 Window::~Window()
@@ -93,6 +97,8 @@ Window::~Window()
     while(planetList.size() != 0) {
         delete planetList.takeAt(0);
     }
+
+    ::Settings::saveWindow(this);
 }
 
 QStandardItem* Window::getPlanetTreeWidgetItem(const Planet &planet)

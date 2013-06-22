@@ -68,8 +68,9 @@ SOURCES += \
     ../../src/PlanetScanner/Settings/planetsettingspage.cpp \
     ../../src/PlanetScanner/Settings/settingsdialog.cpp \
     ../../src/PlanetScanner/Settings/tablesettingspage.cpp \
+    ../../src/Settings/abstractsettingspage.cpp \
     ../../src/Settings/basicsettingsdialog.cpp \
-    ../../src/Settings/abstractsettingspage.cpp
+    ../../src/Settings/settings.cpp
 
 HEADERS  += \
     ../../src/aboutdialog.hpp \
@@ -122,7 +123,8 @@ HEADERS  += \
     ../../src/PlanetScanner/Settings/settingsdialog.hpp \
     ../../src/PlanetScanner/Settings/tablesettingspage.hpp \
     ../../src/Settings/abstractsettingspage.hpp \
-    ../../src/Settings/basicsettingsdialog.hpp
+    ../../src/Settings/basicsettingsdialog.hpp \
+    ../../src/Settings/settings.hpp
 
 RESOURCES += \
     ../../resources/icons.qrc \
