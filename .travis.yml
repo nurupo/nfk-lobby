@@ -9,7 +9,7 @@ before_install:
 
 script:
   - qmake -qt=qt5 -Wall projectfiles/QtCreator/NFK-Lobby.pro
-  - make -j2
+  - make -j3
 
 notifications:
   irc: "chat.freenode.net#nfk-lobby"
