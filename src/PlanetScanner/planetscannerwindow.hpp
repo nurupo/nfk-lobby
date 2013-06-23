@@ -56,11 +56,14 @@ private:
     void startGame(const QString &additionalCommandlineArguments);
     QString getBasenfkPath();
     void error(const QString &errorText);
+    void addAppearedGames(QStandardItem* planetItem, const QList<Game> &games);
+    void removeDisappearedGames(QStandardItem* planetItem, const QList<Game> &games);
+    void updateExistingGames(QStandardItem* planetItem, const QList<Game> &games);
 
 private slots:
     void refreshPlanets();
     void showSettingsDialog();
-    void addGame(const Planet &planet, const QList<Game> &games);
+    void processPlanetGames(const Planet &planet, const QList<Game> &games);
     void setPlanetConnectionError(const Planet &planet, QAbstractSocket::SocketError socketError);
     void clearPlanetConnectionError(const Planet &planet);
     void connectSelected();

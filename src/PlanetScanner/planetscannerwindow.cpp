@@ -124,24 +124,16 @@ void Window::refreshPlanets()
     }
 }
 
-void Window::addGame(const Planet &planet, const QList<Game> &games)
+void Window::processPlanetGames(const Planet &planet, const QList<Game> &games)
 {
     //saving selction
     QModelIndex currentIndex = planetTreeView->selectionModel()->currentIndex();
 
     QStandardItem* planetItem = getPlanetTreeWidgetItem(planet);
-    while (planetItem->rowCount()) {
-        qDeleteAll(planetItem->takeRow(0));
-    }
-    for (const Game &game : games) {
-        QList<QStandardItem*> gameItems;
-        gameItems << new QStandardItem(game.getCleanedHostname());
-        gameItems << new QStandardItem(game.getMap());
-        gameItems << new QStandardItem(Game::getNameForGametype(game.getGametype()));
-        gameItems << new QStandardItem(QString("%1/%2").arg(game.getCurrentPlayers()).arg(game.getMaxPlayers()));
-        gameItems << new QStandardItem(QString("%1:%2").arg(game.getIp()).arg(game.getPort()));
-        planetItem->appendRow(gameItems);
-    }
+
+    removeDisappearedGames(planetItem, games);
+    updateExistingGames(planetItem, games);
+    addAppearedGames(planetItem, games);
 
     //restoring selection
     planetTreeView->selectionModel()->clear();
@@ -149,6 +141,68 @@ void Window::addGame(const Planet &planet, const QList<Game> &games)
 
     planetTreeView->expandAll();
     resizeColumnsToContents();
+}
+
+void Window::addAppearedGames(QStandardItem* planetItem, const QList<Game> &games)
+{
+    for (const Game& game : games) {
+        bool found = false;
+        //we use address as a unique identifier
+        const QString address = QString("%1:%2").arg(game.getIp()).arg(game.getPort());
+        for (int row = 0; row < planetItem->rowCount(); row ++) {
+            //4th column = ip:port = address
+            if (planetItem->child(row, 4)->text() == address) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            QList<QStandardItem*> gameItems;
+            gameItems << new QStandardItem(game.getCleanedHostname());
+            gameItems << new QStandardItem(game.getMap());
+            gameItems << new QStandardItem(Game::getNameForGametype(game.getGametype()));
+            gameItems << new QStandardItem(QString("%1/%2").arg(game.getCurrentPlayers()).arg(game.getMaxPlayers()));
+            gameItems << new QStandardItem(QString("%1:%2").arg(game.getIp()).arg(game.getPort()));
+            planetItem->appendRow(gameItems);
+        }
+    }
+}
+
+void Window::removeDisappearedGames(QStandardItem* planetItem, const QList<Game> &games)
+{
+    for (int row = 0; row < planetItem->rowCount(); row ++) {
+        bool found = false;
+        for (const Game& game : games) {
+            //we use address as a unique identifier
+            const QString address = QString("%1:%2").arg(game.getIp()).arg(game.getPort());
+            //4th column = ip:port = address
+            if (planetItem->child(row, 4)->text() == address) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            qDeleteAll(planetItem->takeRow(row));
+        }
+    }
+}
+
+void Window::updateExistingGames(QStandardItem* planetItem, const QList<Game> &games)
+{
+    for (const Game& game : games) {
+        //we use address as a unique identifier
+        const QString address = QString("%1:%2").arg(game.getIp()).arg(game.getPort());
+        for (int row = 0; row < planetItem->rowCount(); row ++) {
+            //4th column = ip:port = address
+            if (planetItem->child(row, 4)->text() == address) {
+                planetItem->child(row, 0)->setText(game.getCleanedHostname());
+                planetItem->child(row, 1)->setText(game.getMap());
+                planetItem->child(row, 2)->setText(Game::getNameForGametype(game.getGametype()));
+                planetItem->child(row, 3)->setText(QString("%1/%2").arg(game.getCurrentPlayers()).arg(game.getMaxPlayers()));
+                break;
+            }
+        }
+    }
 }
 
 void inline Window::resizeColumnsToContents()
@@ -189,7 +243,7 @@ void Window::showSettingsDialog()
 
 void Window::addPlanet(Planet* planet)
 {
-    connect(planet, SIGNAL(gameInfoRecieved(const Planet &, const QList<Game> &)), this, SLOT(addGame(const Planet &, const QList<Game> &)));
+    connect(planet, SIGNAL(gameInfoRecieved(const Planet &, const QList<Game> &)), this, SLOT(processPlanetGames(const Planet &, const QList<Game> &)));
     connect(planet, SIGNAL(error(const Planet &, QAbstractSocket::SocketError)), this, SLOT(setPlanetConnectionError(const Planet &, QAbstractSocket::SocketError)));
     connect(planet, SIGNAL(errorCeared(const Planet &)), this, SLOT(clearPlanetConnectionError(const Planet &)));
     planetList << planet;

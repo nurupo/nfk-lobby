@@ -27,7 +27,6 @@ namespace PlanetScanner {
 class Planet : public QObject
 {
      Q_OBJECT
-
 public:
     explicit Planet(const QString &address, const int port);
     ~Planet();
