@@ -245,7 +245,7 @@ void Window::addPlanet(Planet* planet)
 {
     connect(planet, SIGNAL(gameInfoRecieved(const Planet &, const QList<Game> &)), this, SLOT(processPlanetGames(const Planet &, const QList<Game> &)));
     connect(planet, SIGNAL(error(const Planet &, QAbstractSocket::SocketError)), this, SLOT(setPlanetConnectionError(const Planet &, QAbstractSocket::SocketError)));
-    connect(planet, SIGNAL(errorCeared(const Planet &)), this, SLOT(clearPlanetConnectionError(const Planet &)));
+    connect(planet, SIGNAL(errorCleared(const Planet &)), this, SLOT(clearPlanetConnectionError(const Planet &)));
     planetList << planet;
     QList<QStandardItem*> planetRow;
     planetRow << new QStandardItem(QString("%1:%2").arg(planet->getAddress()).arg(planet->getPort()));
