@@ -15,6 +15,7 @@
 */
 
 #include "planettreemodel.hpp"
+#include <QDebug>
 
 namespace PlanetScanner {
 
@@ -26,6 +27,26 @@ PlanetTreeModel::PlanetTreeModel(QObject *parent) :
 Qt::ItemFlags PlanetTreeModel::flags(const QModelIndex& index) const
 {
    return (QStandardItemModel::flags(index) & ~Qt::ItemIsEditable);
+}
+
+PlanetTreeModel::ItemType PlanetTreeModel::getIndexType(const QModelIndex& index) const
+{
+    if (index.data(ItemTypeRole).canConvert<ItemType>()) {
+        return index.data(ItemTypeRole).value<ItemType>();
+    } else {
+        qDebug() << "Can't convert ItemType of" << index.data();
+        return ItemType::Planet;
+    }
+}
+
+PlanetTreeModel::ItemType PlanetTreeModel::getItemType(const QStandardItem* item) const
+{
+    return getIndexType(item->index());
+}
+
+void PlanetTreeModel::setItemType(QStandardItem* item, ItemType type) const
+{
+    item->setData(QVariant::fromValue(type), ItemTypeRole);
 }
 
 } // namespace PlanetScanner

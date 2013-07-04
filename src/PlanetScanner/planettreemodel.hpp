@@ -27,8 +27,17 @@ public:
     PlanetTreeModel(QObject* parent);
     Qt::ItemFlags flags(const QModelIndex& index) const;
 
+    enum {ItemTypeRole = Qt::UserRole};
+    enum class ItemType {Planet = 0, Game, Player};
+
+    ItemType getIndexType(const QModelIndex& index) const;
+    ItemType getItemType(const QStandardItem* item) const;
+    void setItemType(QStandardItem* item, ItemType type) const;
+
 };
 
 } // namespace PlanetScanner
+
+Q_DECLARE_METATYPE(PlanetScanner::PlanetTreeModel::ItemType)
 
 #endif // PLANETTREEMODEL_HPP

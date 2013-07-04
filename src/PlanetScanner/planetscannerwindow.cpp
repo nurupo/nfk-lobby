@@ -107,7 +107,7 @@ QStandardItem* Window::getPlanetTreeWidgetItem(const Planet &planet)
     QList<QStandardItem*> items = planetTreeModel->findItems(searchingText, Qt::MatchExactly, 0);
     // we assume that there are no duplicates
     for (QStandardItem* item : items) {
-        if (item->parent() == 0) {
+        if (planetTreeModel->getItemType(item) == PlanetTreeModel::ItemType::Planet) {
             return item;
         }
     }
@@ -158,7 +158,9 @@ void Window::addAppearedGames(QStandardItem* planetItem, const QList<Game> &game
         }
         if (!found) {
             QList<QStandardItem*> gameItems;
-            gameItems << new QStandardItem(game.getCleanedHostname());
+            QStandardItem* hostname = new QStandardItem(game.getCleanedHostname());
+            planetTreeModel->setItemType(hostname, PlanetTreeModel::ItemType::Game);
+            gameItems << hostname;
             gameItems << new QStandardItem(game.getMap());
             gameItems << new QStandardItem(Game::getNameForGametype(game.getGametype()));
             gameItems << new QStandardItem(QString("%1/%2").arg(game.getCurrentPlayers()).arg(game.getMaxPlayers()));
@@ -248,11 +250,10 @@ void Window::addPlanet(Planet* planet)
     connect(planet, SIGNAL(errorCleared(const Planet &)), this, SLOT(clearPlanetConnectionError(const Planet &)));
     planetList << planet;
     QList<QStandardItem*> planetRow;
-    planetRow << new QStandardItem(QString("%1:%2").arg(planet->getAddress()).arg(planet->getPort()));
-    planetRow << new QStandardItem();
-    planetRow << new QStandardItem();
-    planetRow << new QStandardItem();
-    planetRow << new QStandardItem();
+    QStandardItem* address = new QStandardItem(QString("%1:%2").arg(planet->getAddress()).arg(planet->getPort()));
+    planetTreeModel->setItemType(address, PlanetTreeModel::ItemType::Planet);
+    QStandardItem* error = new QStandardItem();
+    planetRow << address << error;
     planetTreeModel->invisibleRootItem()->appendRow(planetRow);
     resizeColumnsToContents();
 }
@@ -267,8 +268,8 @@ void Window::removePlanet(Planet* planet)
 void Window::startGame(const QString &additionalCommandlineArguments)
 {
     QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
-    if (selectedIndexes.at(2).data().toString() == "") {
-        error("Selected planet instead of a game.");
+    if (planetTreeModel->getIndexType(selectedIndexes.at(0)) != PlanetTreeModel::ItemType::Game) {
+        error("Wrong selection.");
         return;
     }
     QString arguments = Settings::getInstance().getCommandlineArguments();
@@ -363,11 +364,10 @@ void Window::showContextMenu(const QPoint &pos)
     if (selectedIndexes.size() != 1 * 5) {
         return;
     }
-    QModelIndex selectedIndex = selectedIndexes[2];
     contextMenuShown = true;
-    if (!selectedIndex.data().toString().compare("")) {
+    if (planetTreeModel->getIndexType(selectedIndexes.at(0)) == PlanetTreeModel::ItemType::Planet) {
         planetContextMenu->exec(globalPos);
-    } else {
+    } else if (planetTreeModel->getIndexType(selectedIndexes.at(0)) == PlanetTreeModel::ItemType::Game) {
         gameContextMenu->exec(globalPos);
     }
     contextMenuShown = false;
