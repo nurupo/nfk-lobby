@@ -15,6 +15,7 @@
 */
 
 #include "game.hpp"
+#include "planettreemodel.hpp"
 #include "planettreesortfilterproxymodel.hpp"
 #include "Settings/planetscannersettings.hpp"
 
@@ -27,14 +28,15 @@ PlanetTreeSortFilterProxyModel::PlanetTreeSortFilterProxyModel(QObject *parent) 
 
 bool PlanetTreeSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    QModelIndex column2 = sourceModel()->index(sourceRow, 2, sourceParent);
-    if (column2.isValid() && column2.data().toString() != "") {
+    PlanetTreeModel* model = static_cast<PlanetTreeModel*>(sourceModel());
+    QModelIndex index = model->index(sourceRow, 0, sourceParent);
+    if (model->getIndexType(index) == PlanetTreeModel::ItemType::Game) {
         const Settings& settings = Settings::getInstance();
-        QString gameType = column2.data().toString();
+        QString gameType = index.data().toString();
         if (settings.getGameTypeFilter()[gameType]) {
             return false;
         }
-        QStringList players = sourceModel()->index(sourceRow, 3, sourceParent).data().toString().split('/');
+        QStringList players = model->index(sourceRow, 3, sourceParent).data().toString().split('/');
         QString currentPlayers = players[0];
         QString maxPlayers = players[1];
         if (settings.getHideOnFullFilter() && currentPlayers == maxPlayers) {
