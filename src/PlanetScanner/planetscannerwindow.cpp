@@ -120,7 +120,7 @@ void Window::refreshPlanets()
         return;
     }*/
     for (int i = 0; i < planetList.size(); i ++) {
-        planetList.at(i)->requestInfo();
+        planetList.at(i)->requestGameInfo();
     }
 }
 

@@ -33,7 +33,7 @@ Planet::~Planet()
     delete sock;
 }
 
-void Planet::requestInfo()
+void Planet::requestGameInfo()
 {
     if (sock->state() == QAbstractSocket::UnconnectedState) {
         connect();
@@ -77,7 +77,7 @@ void Planet::parseServerResponse()
     }
     if (response.at(0) == 'V' || response.at(1) == 'V') {
         if (response.endsWith("V077\x0a")) {
-            requestInfo();
+            requestGameInfo();
         } else {
             /*unsupported version of NFK Planet*/
         }

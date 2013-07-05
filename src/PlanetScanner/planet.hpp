@@ -54,7 +54,7 @@ private slots:
     void error(QAbstractSocket::SocketError socketError);
 
 public slots:
-    void requestInfo();
+    void requestGameInfo();
 };
 
 } // namespace PlanetScanner
