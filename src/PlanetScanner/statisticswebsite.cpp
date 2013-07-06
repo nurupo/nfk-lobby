@@ -21,6 +21,8 @@
 #include <QJsonObject>
 #include <QNetworkReply>
 
+namespace PlanetScanner {
+
 StatisticsWebSite::StatisticsWebSite(QObject *parent) :
     QObject(parent)
 {
@@ -69,35 +71,15 @@ void StatisticsWebSite::processPlayersInfo()
                 continue;
             }
             const QJsonObject playerObject = playerValue.toObject();
-            PlayerInfo playerInfo;
-            const QJsonValue countryValue = playerObject["country"];
-            if (!countryValue.isUndefined() && !countryValue.isNull()) {
-                playerInfo.country = countryValue.toString();
-            }
-            const QJsonValue modelValue = playerObject["model"];
-            if (!modelValue.isUndefined() && !modelValue.isNull()) {
-                playerInfo.model = modelValue.toString();
-            }
-            const QJsonValue nameValue = playerObject["name"];
-            if (!nameValue.isUndefined() && !nameValue.isNull()) {
-                playerInfo.name = nameValue.toString();
-            }
-            const QJsonValue nickValue = playerObject["nick"];
-            if (!nickValue.isUndefined() && !nickValue.isNull()) {
-                playerInfo.nick = nickValue.toString();
-            }
-            const QJsonValue placeValue = playerObject["place"];
-            if (!placeValue.isUndefined() && !placeValue.isNull()) {
-                playerInfo.place = placeValue.toDouble();
-            }
-            const QJsonValue playerIdValue = playerObject["playerID"];
-            if (!playerIdValue.isUndefined() && !playerIdValue.isNull()) {
-                playerInfo.playerId = playerIdValue.toDouble();
-            }
-            const QJsonValue pointsValue = playerObject["points"];
-            if (!pointsValue.isUndefined() && !pointsValue.isNull()) {
-                playerInfo.points = pointsValue.toDouble();
-            }
+            PlayerInfo playerInfo = {
+                playerObject["country"].toString(),
+                playerObject["model"].toString(),
+                playerObject["name"].toString(),
+                playerObject["nick"].toString(),
+                playerObject["place"].toDouble(),
+                playerObject["playerID"].toDouble(),
+                playerObject["points"].toDouble()
+            };
             playersList << playerInfo;
         }
         playersHash[ip] = playersList;
@@ -109,3 +91,5 @@ void StatisticsWebSite::processPlayersInfo()
 
     reply->deleteLater();
 }
+
+} // namespace PlanetScanner

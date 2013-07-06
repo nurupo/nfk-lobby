@@ -21,6 +21,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 
+namespace PlanetScanner {
+
 class StatisticsWebSite : public QObject
 {
     Q_OBJECT
@@ -33,9 +35,9 @@ public:
         QString model;
         QString name;
         QString nick;
-        int place;
-        int playerId;
-        int points;
+        double place;
+        double playerId;
+        double points;
     };
 
 private:
@@ -49,5 +51,7 @@ signals:
     void playersInfoRecieved(QHash<QString, QList<PlayerInfo>>);
 
 };
+
+} // namespace PlanetScanner
 
 #endif // STATISTICSWEBSITE_HPP
