@@ -20,6 +20,7 @@
 #include <QHash>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
+#include <QUrl>
 
 namespace PlanetScanner {
 
@@ -39,6 +40,8 @@ public:
         int playerId;
         int points;
     };
+
+    static QUrl getProfileUrl(int playerId);
 
 private:
     QNetworkAccessManager* manager;

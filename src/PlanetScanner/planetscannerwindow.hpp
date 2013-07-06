@@ -43,6 +43,8 @@ private:
     QProcess* game;
     QMenu* gameContextMenu;
     QMenu* planetContextMenu;
+    QMenu* registeredPlayerContextMenu;
+    QMenu* unregisteredPlayerContextMenu;
     bool contextMenuShown;
     QTimer* autoRefreshTimer;
     QList<Planet*> planetList;
@@ -76,6 +78,7 @@ private slots:
     void connectSelected();
     void connectAsSpectatorSelected();
     void copySelected();
+    void openProfileSelected();
     void showContextMenu(const QPoint &pos);
     void applyChangedSettings();
 };

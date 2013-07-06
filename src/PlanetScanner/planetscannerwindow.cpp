@@ -20,6 +20,7 @@
 
 #include <QAction>
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QDir>
 #include <QFile>
 #include <QGuiApplication>
@@ -67,13 +68,19 @@ Window::Window(QWidget* parent):
     QAction* connectAction = new QAction("Connect", planetTreeView);
     QAction* connectAsSpectatorAction = new QAction("Connect as spectator", planetTreeView);
     QAction* copyAction = new QAction("Copy", planetTreeView);
+    QAction* openProfileAction = new QAction("Open profile in a browser", planetTreeView);
     connect(connectAction, SIGNAL(triggered()), this, SLOT(connectSelected()));
     connect(connectAsSpectatorAction, SIGNAL(triggered()), this, SLOT(connectAsSpectatorSelected()));
     connect(copyAction, SIGNAL(triggered()), this, SLOT(copySelected()));
+    connect(openProfileAction, &QAction::triggered, this, &Window::openProfileSelected);
     gameContextMenu = new QMenu(planetTreeView);
     planetContextMenu = new QMenu(planetTreeView);
+    registeredPlayerContextMenu = new QMenu(planetTreeView);
+    unregisteredPlayerContextMenu = new QMenu(planetTreeView);
     gameContextMenu->addActions(QList<QAction*>() << connectAction << connectAsSpectatorAction << copyAction);
     planetContextMenu->addActions(QList<QAction*>() << copyAction);
+    registeredPlayerContextMenu->addActions(QList<QAction*>() << openProfileAction << copyAction);
+    unregisteredPlayerContextMenu->addActions(QList<QAction*>() << copyAction);
 
     setCentralWidget(planetTreeView);
 
@@ -268,7 +275,7 @@ void Window::addAppearedPlayers(QStandardItem* gameItem, const QList<StatisticsW
         if (!found) {
             QStandardItem* playerItem = new QStandardItem(playerInfo.name);
             planetTreeModel->setItemType(playerItem, PlanetTreeModel::ItemType::Player);
-            playerItem->setData(playerInfo.playerId ,PlanetTreeModel::PlayerIdRole);
+            playerItem->setData(playerInfo.playerId, PlanetTreeModel::PlayerIdRole);
             gameItem->setColumnCount(5);
             gameItem->appendRow(QList<QStandardItem*>() << playerItem);
         }
@@ -443,6 +450,16 @@ void Window::copySelected()
     QGuiApplication::clipboard()->setText(copy);
 }
 
+void Window::openProfileSelected()
+{
+    QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() == 0) {
+        return;
+    }
+    double playerId = selectedIndexes.at(0).data(PlanetTreeModel::PlayerIdRole).toDouble();
+    QDesktopServices::openUrl(StatisticsWebSite::getProfileUrl(playerId));
+}
+
 void Window::error(const QString &errorText)
 {
     QMessageBox::critical(this, QString("Error"), errorText, QMessageBox::Ok);
@@ -457,10 +474,17 @@ void Window::showContextMenu(const QPoint &pos)
         return;
     }
     contextMenuShown = true;
-    if (planetTreeModel->getIndexType(selectedIndexes.at(0)) == PlanetTreeModel::ItemType::Planet) {
+    PlanetTreeModel::ItemType itemType = planetTreeModel->getIndexType(selectedIndexes.at(0));
+    if (itemType == PlanetTreeModel::ItemType::Planet) {
         planetContextMenu->exec(globalPos);
-    } else if (planetTreeModel->getIndexType(selectedIndexes.at(0)) == PlanetTreeModel::ItemType::Game) {
+    } else if (itemType == PlanetTreeModel::ItemType::Game) {
         gameContextMenu->exec(globalPos);
+    } else if (itemType == PlanetTreeModel::ItemType::Player) {
+        if (selectedIndexes.at(0).data(PlanetTreeModel::PlayerIdRole).toInt() == 0) {
+            unregisteredPlayerContextMenu->exec(globalPos);
+        } else {
+            registeredPlayerContextMenu->exec(globalPos);
+        }
     }
     contextMenuShown = false;
 }

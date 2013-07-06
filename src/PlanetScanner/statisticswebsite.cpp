@@ -92,4 +92,8 @@ void StatisticsWebSite::processPlayersInfo()
     reply->deleteLater();
 }
 
+QUrl StatisticsWebSite::getProfileUrl(int playerId) {
+    return QUrl(QString("http://nfk.pro2d.ru/?/profile/%1").arg(playerId));
+}
+
 } // namespace PlanetScanner
