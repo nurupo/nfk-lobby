@@ -79,6 +79,9 @@ Window::Window(QWidget* parent):
 
     game = new QProcess(this);
 
+    statistics = new StatisticsWebSite(this);
+    connect(statistics, &StatisticsWebSite::playersInfoRecieved, this, &Window::processStatisticsPlayers);
+
     autoRefreshTimer = new QTimer(this);
     connect(autoRefreshTimer, SIGNAL(timeout()), this, SLOT(refreshPlanets()));
 
@@ -90,6 +93,8 @@ Window::Window(QWidget* parent):
     applyChangedSettings();
 
     ::Settings::loadWindow(this);
+
+    refreshPlanets();
 }
 
 Window::~Window()
@@ -122,6 +127,8 @@ void Window::refreshPlanets()
     for (int i = 0; i < planetList.size(); i ++) {
         planetList.at(i)->requestGameInfo();
     }
+
+    statistics->requestPlayersInfo();
 }
 
 void Window::processPlanetGames(const Planet &planet, const QList<Game> &games)
@@ -207,6 +214,90 @@ void Window::updateExistingGames(QStandardItem* planetItem, const QList<Game> &g
     }
 }
 
+void Window::processStatisticsPlayers(QHash<QString, QList<StatisticsWebSite::PlayerInfo>> playersHash)
+{
+    for (int i = 0; i < planetTreeModel->rowCount(); i ++) {
+        QStandardItem* planetItem = planetTreeModel->item(i, 0);
+        updatePlayers(planetItem, playersHash);
+    }
+}
+
+void Window::updatePlayers(QStandardItem* planetItem, const QHash<QString, QList<StatisticsWebSite::PlayerInfo>>& playersHash)
+{
+    QHashIterator<QString, QList<StatisticsWebSite::PlayerInfo>> i(playersHash);
+
+    for (int row = 0; row < planetItem->rowCount(); row ++) {
+        bool found = false;
+        QString address;
+
+        i.toFront();
+        while (i.hasNext()) {
+            i.next();
+            address = i.key();
+            //4th column = ip:port = address
+            if (planetItem->child(row, 4)->text() == address) {
+                found = true;
+                break;
+            }
+        }
+
+        QStandardItem* gameItem = planetItem->child(row, 0);
+        if (found) {
+            if (gameItem->rowCount() != 0) {
+                removeDisappearedPlayers(gameItem, playersHash[address]);
+            }
+            addAppearedPlayers(gameItem, playersHash[address]);
+        } else {
+            if (gameItem->rowCount() != 0) {
+                removeAllPlayers(gameItem);
+            }
+        }
+    }
+}
+
+void Window::addAppearedPlayers(QStandardItem* gameItem, const QList<StatisticsWebSite::PlayerInfo>& playersInfo)
+{
+    for (const StatisticsWebSite::PlayerInfo& playerInfo : playersInfo) {
+        bool found = false;
+        for (int row = 0; row < gameItem->rowCount(); row ++) {
+            if (gameItem->child(row, 0)->text() == playerInfo.name) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            QStandardItem* playerItem = new QStandardItem(playerInfo.name);
+            planetTreeModel->setItemType(playerItem, PlanetTreeModel::ItemType::Player);
+            playerItem->setData(playerInfo.playerId ,PlanetTreeModel::PlayerIdRole);
+            gameItem->setColumnCount(5);
+            gameItem->appendRow(QList<QStandardItem*>() << playerItem);
+        }
+    }
+}
+
+void Window::removeDisappearedPlayers(QStandardItem* gameItem, const QList<StatisticsWebSite::PlayerInfo>& playersInfo)
+{
+    for (int row = 0; row < gameItem->rowCount(); row ++) {
+        bool found = false;
+        for (const StatisticsWebSite::PlayerInfo& playerInfo : playersInfo) {
+            if (gameItem->child(row, 0)->text() == playerInfo.name) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            qDeleteAll(gameItem->takeRow(row));
+        }
+    }
+}
+
+void Window::removeAllPlayers(QStandardItem* gameItem)
+{
+    while (gameItem->rowCount()) {
+        qDeleteAll(gameItem->takeRow(0));
+    }
+}
+
 void inline Window::resizeColumnsToContents()
 {
     if (!Settings::getInstance().getResizeOnRefreshDisabled()) {
@@ -256,6 +347,7 @@ void Window::addPlanet(Planet* planet)
     planetRow << address << error;
     planetTreeModel->invisibleRootItem()->appendRow(planetRow);
     resizeColumnsToContents();
+    refreshPlanets();
 }
 
 void Window::removePlanet(Planet* planet)

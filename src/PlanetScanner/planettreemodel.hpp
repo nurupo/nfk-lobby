@@ -27,7 +27,7 @@ public:
     PlanetTreeModel(QObject* parent);
     Qt::ItemFlags flags(const QModelIndex& index) const;
 
-    enum {ItemTypeRole = Qt::UserRole};
+    enum {ItemTypeRole = Qt::UserRole, PlayerIdRole};
     enum class ItemType {Planet = 0, Game, Player};
 
     ItemType getIndexType(const QModelIndex& index) const;

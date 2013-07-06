@@ -24,7 +24,6 @@ Planet::Planet(const QString& address, const int port) : address(address), port(
     QObject::connect(sock, SIGNAL(connected()), this, SLOT(requestVersion()));
     QObject::connect(sock, SIGNAL(readyRead()), this, SLOT(parseServerResponse()));
     QObject::connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
-    connect();
 }
 
 Planet::~Planet()
@@ -45,6 +44,7 @@ void Planet::requestGameInfo()
 void Planet::connect()
 {
     sock->connectToHost(address, port);
+    sock->waitForConnected(1 * 1000);
 }
 
 void Planet::disconnect()

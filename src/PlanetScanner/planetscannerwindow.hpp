@@ -21,6 +21,7 @@
 #include "planet.hpp"
 #include "planettreemodel.hpp"
 #include "planettreesortfilterproxymodel.hpp"
+#include "statisticswebsite.hpp"
 
 #include <QMainWindow>
 #include <QMenu>
@@ -48,6 +49,7 @@ private:
     QTreeView* planetTreeView;
     PlanetTreeModel* planetTreeModel;
     PlanetTreeSortFilterProxyModel* planetTreeProxyModel;
+    StatisticsWebSite* statistics;
 
     void addPlanet(Planet* planet);
     void removePlanet(Planet* planet);
@@ -59,11 +61,16 @@ private:
     void addAppearedGames(QStandardItem* planetItem, const QList<Game> &games);
     void removeDisappearedGames(QStandardItem* planetItem, const QList<Game> &games);
     void updateExistingGames(QStandardItem* planetItem, const QList<Game> &games);
+    void updatePlayers(QStandardItem* planetItem, const QHash<QString, QList<StatisticsWebSite::PlayerInfo>>& playersHash);
+    void addAppearedPlayers(QStandardItem* gameItem, const QList<StatisticsWebSite::PlayerInfo>& playersInfo);
+    void removeDisappearedPlayers(QStandardItem* gameItem, const QList<StatisticsWebSite::PlayerInfo>& playersInfo);
+    void removeAllPlayers(QStandardItem* gameItem);
 
 private slots:
     void refreshPlanets();
     void showSettingsDialog();
     void processPlanetGames(const Planet &planet, const QList<Game> &games);
+    void processStatisticsPlayers(QHash<QString, QList<StatisticsWebSite::PlayerInfo>> playersHash);
     void setPlanetConnectionError(const Planet &planet, QAbstractSocket::SocketError socketError);
     void clearPlanetConnectionError(const Planet &planet);
     void connectSelected();

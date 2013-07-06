@@ -60,6 +60,7 @@ SOURCES += \
     ../../src/PlanetScanner/planetscannerwindow.cpp \
     ../../src/PlanetScanner/planettreemodel.cpp \
     ../../src/PlanetScanner/planettreesortfilterproxymodel.cpp \
+    ../../src/PlanetScanner/statisticswebsite.cpp \
     ../../src/PlanetScanner/Settings/filtersettingspage.cpp \
     ../../src/PlanetScanner/Settings/gamesettingspage.cpp \
     ../../src/PlanetScanner/Settings/miscsettingspage.cpp \
@@ -113,6 +114,7 @@ HEADERS  += \
     ../../src/PlanetScanner/planetscannerwindow.hpp \
     ../../src/PlanetScanner/planettreemodel.hpp \
     ../../src/PlanetScanner/planettreesortfilterproxymodel.hpp \
+    ../../src/PlanetScanner/statisticswebsite.hpp \
     ../../src/PlanetScanner/Settings/filtersettingspage.hpp \
     ../../src/PlanetScanner/Settings/gamesettingspage.hpp \
     ../../src/PlanetScanner/Settings/miscsettingspage.hpp \
