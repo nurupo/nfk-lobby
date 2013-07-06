@@ -140,8 +140,7 @@ void Window::refreshPlanets()
 
 void Window::processPlanetGames(const Planet &planet, const QList<Game> &games)
 {
-    //saving selction
-    QModelIndex currentIndex = planetTreeView->selectionModel()->currentIndex();
+    QVariant selectedIndexData = planetTreeView->selectionModel()->currentIndex().data();
 
     QStandardItem* planetItem = getPlanetTreeWidgetItem(planet);
 
@@ -149,9 +148,10 @@ void Window::processPlanetGames(const Planet &planet, const QList<Game> &games)
     updateExistingGames(planetItem, games);
     addAppearedGames(planetItem, games);
 
-    //restoring selection
-    planetTreeView->selectionModel()->clear();
-    planetTreeView->selectionModel()->setCurrentIndex(currentIndex, QItemSelectionModel::SelectCurrent | QItemSelectionModel::Rows);
+    if (selectedIndexData != planetTreeView->selectionModel()->currentIndex().data()) {
+        // selected item disappeared
+        planetTreeView->selectionModel()->clear();
+    }
 
     planetTreeView->expandAll();
     resizeColumnsToContents();
@@ -223,10 +223,20 @@ void Window::updateExistingGames(QStandardItem* planetItem, const QList<Game> &g
 
 void Window::processStatisticsPlayers(QHash<QString, QList<StatisticsWebSite::PlayerInfo>> playersHash)
 {
+    QVariant selectedIndexData = planetTreeView->selectionModel()->currentIndex().data();
+
     for (int i = 0; i < planetTreeModel->rowCount(); i ++) {
         QStandardItem* planetItem = planetTreeModel->item(i, 0);
         updatePlayers(planetItem, playersHash);
     }
+
+    if (selectedIndexData != planetTreeView->selectionModel()->currentIndex().data()) {
+        // selected item disappeared
+        planetTreeView->selectionModel()->clear();
+    }
+
+    planetTreeView->expandAll();
+    resizeColumnsToContents();
 }
 
 void Window::updatePlayers(QStandardItem* planetItem, const QHash<QString, QList<StatisticsWebSite::PlayerInfo>>& playersHash)
@@ -367,6 +377,9 @@ void Window::removePlanet(Planet* planet)
 void Window::startGame(const QString &additionalCommandlineArguments)
 {
     QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() == 0) {
+        return;
+    }
     if (planetTreeModel->getIndexType(selectedIndexes.at(0)) != PlanetTreeModel::ItemType::Game) {
         error("Wrong selection.");
         return;
@@ -405,18 +418,26 @@ void Window::startGame(const QString &additionalCommandlineArguments)
 
 void Window::connectSelected()
 {
-    startGame("+connect " + planetTreeView->selectionModel()->selectedIndexes().at(4).data().toString());
+    QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() == 0) {
+        return;
+    }
+    startGame("+connect " + selectedIndexes.at(4).data().toString());
 }
 
 void Window::connectAsSpectatorSelected()
 {
+    QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() == 0) {
+        return;
+    }
     QString configPath = getBasenfkPath()+ "spec.cfg";
     QFile config(configPath);
     if (!config.open(QIODevice::Truncate | QIODevice::WriteOnly | QIODevice::Text)) {
         error("Couldn't open:\n\"" + configPath + "\"");
         return;
     }
-    QString configContent = "spectator 1\necho spectator on\nconnect " + planetTreeView->selectionModel()->selectedIndexes().at(4).data().toString();
+    QString configContent = "spectator 1\necho spectator on\nconnect " + selectedIndexes.at(4).data().toString();
     config.write(configContent.toLatin1());
     config.flush();
     startGame("+exec spec ");
@@ -430,8 +451,11 @@ QString Window::getBasenfkPath()
 
 void Window::copySelected()
 {
-    QString copy;
     QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
+    if (selectedIndexes.size() == 0) {
+        return;
+    }
+    QString copy;
     for (int i = 0; i < planetTreeModel->columnCount(); i++) {
         if (planetTreeView->isColumnHidden(i)) {
             continue;
@@ -470,7 +494,7 @@ void Window::showContextMenu(const QPoint &pos)
     QPoint globalPos = planetTreeView->viewport()->mapToGlobal(pos);
     globalPos.setX(globalPos.x() + 1);
     QModelIndexList selectedIndexes = planetTreeView->selectionModel()->selectedIndexes();
-    if (selectedIndexes.size() != 1 * 5) {
+    if (selectedIndexes.size() == 0) {
         return;
     }
     contextMenuShown = true;
