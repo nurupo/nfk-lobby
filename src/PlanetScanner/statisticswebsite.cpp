@@ -76,9 +76,9 @@ void StatisticsWebSite::processPlayersInfo()
                 playerObject["model"].toString(),
                 playerObject["name"].toString(),
                 playerObject["nick"].toString(),
-                playerObject["place"].toDouble(),
-                playerObject["playerID"].toDouble(),
-                playerObject["points"].toDouble()
+                playerObject["place"].toString().toInt(),
+                playerObject["playerID"].toString().toInt(),
+                playerObject["points"].toString().toInt()
             };
             playersList << playerInfo;
         }

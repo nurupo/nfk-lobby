@@ -35,9 +35,9 @@ public:
         QString model;
         QString name;
         QString nick;
-        double place;
-        double playerId;
-        double points;
+        int place;
+        int playerId;
+        int points;
     };
 
 private:
