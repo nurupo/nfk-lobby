@@ -43,6 +43,8 @@ public:
 
     static QUrl getProfileUrl(int playerId);
 
+    static QString baseUrl();
+
 private:
     QNetworkAccessManager* manager;
     QNetworkRequest* request;

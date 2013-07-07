@@ -27,7 +27,7 @@ StatisticsWebSite::StatisticsWebSite(QObject *parent) :
     QObject(parent)
 {
     manager = new QNetworkAccessManager(this);
-    request = new QNetworkRequest(QUrl("http://nfk.pro2d.ru/api.php?action=gsl"));
+    request = new QNetworkRequest(QUrl(QString("%1api.php?action=gsl").arg(baseUrl())));
 }
 
 void StatisticsWebSite::requestPlayersInfo()
@@ -93,7 +93,12 @@ void StatisticsWebSite::processPlayersInfo()
 }
 
 QUrl StatisticsWebSite::getProfileUrl(int playerId) {
-    return QUrl(QString("http://nfk.pro2d.ru/?/profile/%1").arg(playerId));
+    return QUrl(QString("%1?/profile/%2").arg(baseUrl()).arg(playerId));
+}
+
+QString StatisticsWebSite::baseUrl()
+{
+    return QStringLiteral("http://nfk.pro2d.ru/");
 }
 
 } // namespace PlanetScanner

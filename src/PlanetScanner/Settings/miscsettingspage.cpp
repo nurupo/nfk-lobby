@@ -14,9 +14,11 @@
     See the COPYING file for more details.
 */
 
+#include "../statisticswebsite.hpp"
 #include "miscsettingspage.hpp"
 #include "planetscannersettings.hpp"
 
+#include <QLabel>
 #include <QVBoxLayout>
 
 namespace PlanetScanner {
@@ -39,7 +41,9 @@ void MiscSettingsPage::buildGui()
 QGroupBox* MiscSettingsPage::buildMiscGroup()
 {
     QGroupBox* group = new QGroupBox("Misc options", this);
-    QGridLayout* layout = new QGridLayout(group);
+    QVBoxLayout* layout = new QVBoxLayout(group);
+
+    QHBoxLayout* refreshLayout = new QHBoxLayout(group);
 
     refreshCheckBox = new QCheckBox("Refresh every", group);
     refreshCheckBox->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
@@ -50,8 +54,24 @@ QGroupBox* MiscSettingsPage::buildMiscGroup()
     refreshSpinBox->setSuffix(" sec.");
     refreshSpinBox->setFixedWidth(76);
 
-    layout->addWidget(refreshCheckBox,  0, 0, 1, 1);
-    layout->addWidget(refreshSpinBox,   0, 1, 1, 1, Qt::AlignLeft);
+    refreshLayout->addWidget(refreshCheckBox);
+    refreshLayout->addWidget(refreshSpinBox, 0, Qt::AlignLeft);
+
+    QHBoxLayout* playersLayout = new QHBoxLayout(group);
+    playersLayout->setSpacing(0);
+
+    pullPlayersCheckBox = new QCheckBox("Pull players from", group);
+
+    QLabel* webSiteUrlLabel = new QLabel(QString("<a href=\"%1\">%1</a>").arg(StatisticsWebSite::baseUrl()), group);
+    webSiteUrlLabel->setTextFormat(Qt::RichText);
+    webSiteUrlLabel->setTextInteractionFlags(webSiteUrlLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
+    webSiteUrlLabel->setOpenExternalLinks(true);
+
+    playersLayout->addWidget(pullPlayersCheckBox);
+    playersLayout->addWidget(webSiteUrlLabel, 10, Qt::AlignLeft);
+
+    layout->addLayout(refreshLayout);
+    layout->addLayout(playersLayout);
 
     return group;
 }
@@ -61,6 +81,7 @@ void MiscSettingsPage::setGui()
     const Settings& settings = Settings::getInstance();
     refreshCheckBox->setChecked(settings.getAutoRefresh());
     refreshSpinBox->setValue(settings.getAutoRefreshIntervalSec());
+    pullPlayersCheckBox->setChecked(settings.getPullPlayers());
 }
 
 void MiscSettingsPage::applyChanges()
@@ -68,6 +89,7 @@ void MiscSettingsPage::applyChanges()
     Settings& settings = Settings::getInstance();
     settings.setAutoRefresh(refreshCheckBox->isChecked());
     settings.setAutoRefreshIntervalSec(refreshSpinBox->value());
+    settings.setPullPlayers(pullPlayersCheckBox->isChecked());
 }
 
 } // namespace PlanetScanner

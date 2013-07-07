@@ -38,6 +38,7 @@ private:
 
     QCheckBox* refreshCheckBox;
     QSpinBox* refreshSpinBox;
+    QCheckBox* pullPlayersCheckBox;
 };
 
 } // namespace PlanetScanner

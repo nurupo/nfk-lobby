@@ -67,6 +67,7 @@ private:
     void addAppearedPlayers(QStandardItem* gameItem, const QList<StatisticsWebSite::PlayerInfo>& playersInfo);
     void removeDisappearedPlayers(QStandardItem* gameItem, const QList<StatisticsWebSite::PlayerInfo>& playersInfo);
     void removeAllPlayers(QStandardItem* gameItem);
+    void removeAllPlayers();
 
 private slots:
     void refreshPlanets();

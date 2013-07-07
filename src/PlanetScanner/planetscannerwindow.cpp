@@ -135,7 +135,9 @@ void Window::refreshPlanets()
         planetList.at(i)->requestGameInfo();
     }
 
-    statistics->requestPlayersInfo();
+    if (Settings::getInstance().getPullPlayers()) {
+        statistics->requestPlayersInfo();
+    }
 }
 
 void Window::processPlanetGames(const Planet &planet, const QList<Game> &games)
@@ -312,6 +314,19 @@ void Window::removeAllPlayers(QStandardItem* gameItem)
 {
     while (gameItem->rowCount()) {
         qDeleteAll(gameItem->takeRow(0));
+    }
+}
+
+void Window::removeAllPlayers()
+{
+    for (int i = 0; i < planetTreeModel->rowCount(); i ++) {
+        QStandardItem* planetItem = planetTreeModel->item(i, 0);
+        for (int row = 0; row < planetItem->rowCount(); row ++) {
+            QStandardItem* gameItem = planetItem->child(row, 0);
+            if (gameItem->rowCount() != 0) {
+                removeAllPlayers(gameItem);
+            }
+        }
     }
 }
 
@@ -553,6 +568,10 @@ void Window::applyChangedSettings()
         autoRefreshTimer->start(settings.getAutoRefreshIntervalSec() * 1000);
     } else {
         autoRefreshTimer->stop();
+    }
+
+    if (!settings.getPullPlayers()) {
+        removeAllPlayers();
     }
 
     planetTreeProxyModel->invalidate();

@@ -88,6 +88,7 @@ void Settings::load()
         s.beginGroup("Misc");
             autoRefresh = s.value("autoRefresh", false).toBool();
             autoRefreshIntervalSec = s.value("autoRefreshIntervalSec", 30).toInt();
+            pullPlayers = s.value("pullPlayers", true).toBool();
         s.endGroup();
 
     s.endGroup();
@@ -142,6 +143,7 @@ void Settings::save()
         s.beginGroup("Misc");
             s.setValue("autoRefresh", autoRefresh);
             s.setValue("autoRefreshIntervalSec", autoRefreshIntervalSec);
+            s.setValue("pullPlayers", pullPlayers);
         s.endGroup();
 
     s.endGroup();
@@ -240,6 +242,16 @@ void Settings::setAutoRefresh(bool value)
 int Settings::getAutoRefreshIntervalSec() const
 {
     return autoRefreshIntervalSec;
+}
+
+bool Settings::getPullPlayers() const
+{
+    return pullPlayers;
+}
+
+void Settings::setPullPlayers(bool value)
+{
+    pullPlayers = value;
 }
 
 void Settings::setAutoRefreshIntervalSec(int sec)

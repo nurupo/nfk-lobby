@@ -71,6 +71,8 @@ public:
     void setAutoRefresh(bool value);
     int getAutoRefreshIntervalSec() const;
     void setAutoRefreshIntervalSec(int sec);
+    bool getPullPlayers() const;
+    void setPullPlayers(bool value);
 
 private:
     QString gamePath;
@@ -95,6 +97,7 @@ private:
 
     bool autoRefresh;
     int autoRefreshIntervalSec;
+    bool pullPlayers;
 
     //
 
