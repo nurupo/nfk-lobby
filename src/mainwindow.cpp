@@ -32,6 +32,8 @@
 #include <QVBoxLayout>
 
 //NOTE: should I move these constants somewhere else?
+//Looks like it's better to make them be defines in some header file,
+//instead of tying them to the MainWindow
 const QString MainWindow::name = "NFK Lobby";
 const QString MainWindow::version = "0.1.0";
 const QString MainWindow::buildDate = __DATE__;
@@ -41,46 +43,52 @@ const QString MainWindow::years = "2013";
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    this->setGeometry(700, 350, 1000, 400);
-    this->setWindowTitle(name);
-    this->setObjectName("MainWindow");
-    this->setDockNestingEnabled(true);
+    setGeometry(700, 350, 1000, 400);
+    setWindowTitle(name);
+    setObjectName("MainWindow");
+    setDockNestingEnabled(true);
 
     PlanetScanner::Dock* scannerDock = new PlanetScanner::Dock(this);
-    this->addDockWidget(Qt::TopDockWidgetArea, scannerDock);
+    addDockWidget(Qt::TopDockWidgetArea, scannerDock);
 
     Chat::Dock* chatDock = new Chat::Dock(this);
-    this->addDockWidget(Qt::TopDockWidgetArea, chatDock);
+    addDockWidget(Qt::TopDockWidgetArea, chatDock);
 
     GamePreferences::Dock* preferencesDock = new GamePreferences::Dock(this);
     preferencesDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetClosable);
-    this->addDockWidget(Qt::TopDockWidgetArea, preferencesDock);
+    addDockWidget(Qt::TopDockWidgetArea, preferencesDock);
 
-    this->tabifyDockWidget(scannerDock, chatDock);
-    this->tabifyDockWidget(chatDock, preferencesDock);
+    tabifyDockWidget(scannerDock, chatDock);
+    tabifyDockWidget(chatDock, preferencesDock);
 
-    this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
     chatDock->raise();
 
     QMenuBar* menu = new QMenuBar(this);
-    this->setMenuBar(menu);
-    this->setContextMenuPolicy(Qt::PreventContextMenu);
-    QAction* tabsTopAction = new QAction("Top", this);
-    QAction* tabsLeftAction = new QAction("Left", this);
-    QAction* tabsRightAction = new QAction("Right", this);
-    QAction* tabsBottomAction = new QAction("Bottom", this);
-    connect(tabsTopAction, &QAction::triggered, this, &MainWindow::tabsTopActionTriggered);
-    connect(tabsLeftAction, &QAction::triggered, this, &MainWindow::tabsLeftActionTriggered);
-    connect(tabsRightAction, &QAction::triggered, this, &MainWindow::tabsRightActionTriggered);
-    connect(tabsBottomAction, &QAction::triggered, this, &MainWindow::tabsBottomActionTriggered);
+    setMenuBar(menu);
+    setContextMenuPolicy(Qt::PreventContextMenu);
+
+    QAction* tabsTopAction      = new QAction("Top", this);
+    QAction* tabsLeftAction     = new QAction("Left", this);
+    QAction* tabsRightAction    = new QAction("Right", this);
+    QAction* tabsBottomAction   = new QAction("Bottom", this);
+
+    connect(tabsTopAction,      &QAction::triggered, this, &MainWindow::tabsTopActionTriggered);
+    connect(tabsLeftAction,     &QAction::triggered, this, &MainWindow::tabsLeftActionTriggered);
+    connect(tabsRightAction,    &QAction::triggered, this, &MainWindow::tabsRightActionTriggered);
+    connect(tabsBottomAction,   &QAction::triggered, this, &MainWindow::tabsBottomActionTriggered);
+
     QMenu* windowMenu = menu->addMenu("Window");
     windowMenu->addMenu("Tab position")->addActions(QList<QAction*>() << tabsTopAction << tabsLeftAction << tabsRightAction << tabsBottomAction);
     windowMenu->addMenu("Show dock")->addActions(QList<QAction*>() << scannerDock->toggleViewAction() << chatDock->toggleViewAction() << preferencesDock->toggleViewAction());
+
     QMenu* aboutMenu = menu->addMenu("About");
     QAction* aboutQtAction = new QAction("About Qt", this);
     QAction* aboutAppAction = new QAction(QString("About %1").arg(name), this);
+
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(aboutAppAction, &QAction::triggered, this, &MainWindow::aboutAppActionTriggered);
+
     aboutMenu->addActions(QList<QAction*>() << aboutQtAction << aboutAppAction);
 
     ::Settings::loadWindow(this);
@@ -93,22 +101,22 @@ MainWindow::~MainWindow()
 
 void MainWindow::tabsTopActionTriggered()
 {
-    this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
 }
 
 void MainWindow::tabsLeftActionTriggered()
 {
-    this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::West);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::West);
 }
 
 void MainWindow::tabsRightActionTriggered()
 {
-    this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::East);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::East);
 }
 
 void MainWindow::tabsBottomActionTriggered()
 {
-    this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
+    setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
 }
 
 void MainWindow::aboutAppActionTriggered()
