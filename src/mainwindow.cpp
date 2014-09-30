@@ -35,10 +35,10 @@
 //Looks like it's better to make them be defines in some header file,
 //instead of tying them to the MainWindow
 const QString MainWindow::name = "NFK Lobby";
-const QString MainWindow::version = "0.1.0";
+const QString MainWindow::version = "0.2.0";
 const QString MainWindow::buildDate = __DATE__;
 const QString MainWindow::author = "Maxim Biro";
-const QString MainWindow::years = "2013";
+const QString MainWindow::years = "2013-2014";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
