@@ -11,7 +11,11 @@ TARGET = NFK-Lobby
 TEMPLATE = app
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-CONFIG(release, debug|release):CONFIG += static
+# build statically for Windows
+win32 {
+    CONFIG(release, debug|release):CONFIG += static
+    CONFIG(release, debug|release):LIBS += -static -lpthread -static-libgcc -static-libstdc++
+}
 
 CONFIG += c++11
 
