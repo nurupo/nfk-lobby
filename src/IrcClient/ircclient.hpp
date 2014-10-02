@@ -37,8 +37,8 @@ public:
 
     const User & getUs() const {return us;}
 
-    bool hasChannel(const QString& name) const {return channels.contains(name);}
-    const Channel& getChannel(const QString& name) const {return *channels.value(name);}
+    bool hasChannel(const QString& name) const {return channels.contains(name.toLower());}
+    const Channel& getChannel(const QString& name) const {return *channels.value(name.toLower());}
     int getChannelCount() const {return channels.size();}
     QHashIterator<QString, Channel*> getChannelIterator() const {return QHashIterator<QString, Channel*>(channels);}
 

@@ -209,6 +209,7 @@ void IrcClient::processUserLine(const QString &line)
     if (target.at(0) == ':') {
         target = target.mid(1);
     }
+    const QString targetLower = target.toLower();
 
     if (!command.compare("PRIVMSG", Qt::CaseInsensitive)) {
         line.indexOf(target);
@@ -216,8 +217,8 @@ void IrcClient::processUserLine(const QString &line)
         if (ctcpIndex > 0 && line.endsWith(Ctcp)) {
             const QString request = line.mid(ctcpIndex + 1 + 1, line.length() - (ctcpIndex + 1 + 1) - 1);
             if (request.startsWith("ACTION", Qt::CaseInsensitive)) {
-                if (isChannel(target) && channels.contains(target)) {
-                    emit channels[target]->action(us, request.mid(7));
+                if (isChannel(target) && channels.contains(targetLower)) {
+                    emit channels[targetLower]->action(us, request.mid(7));
                 } else if (!isChannel(target)) {
                     emit action(us, request.mid(7), target);
                 }
@@ -225,8 +226,8 @@ void IrcClient::processUserLine(const QString &line)
                 emit ctcpRequest(target, us, request);
             }
 
-        } else if (channels.contains(target)) {
-            emit channels[target]->channelMessage(us, line.mid(line.indexOf(" :") + 2));
+        } else if (channels.contains(targetLower)) {
+            emit channels[targetLower]->channelMessage(us, line.mid(line.indexOf(" :") + 2));
         } else if (!isChannel(target)) {
             emit privateMessage(us, line.mid(line.indexOf(" :") + 2), target);
         } else {
@@ -240,7 +241,7 @@ void IrcClient::processUserLine(const QString &line)
             emit ctcpReply(target, us, request.left(fisrtSpace), request.mid(fisrtSpace + 1));
         } else {
             if (isChannel(target)) {
-                emit channels[target]->notice(us, line.mid(line.indexOf(" :") + 2));
+                emit channels[targetLower]->notice(us, line.mid(line.indexOf(" :") + 2));
             } else {
                 emit notice(us, line.mid(line.indexOf(" :") + 2));
             }
@@ -293,14 +294,15 @@ void IrcClient::processServerLine(const QString &line)
     if (target.at(0) == ':') {
         target = target.mid(1);
     }
+    const QString targetLower = target.toLower();
     if (!command.compare("PRIVMSG", Qt::CaseInsensitive)) {
         const int ctcpIndex = line.indexOf(QString(":%1").arg(Ctcp));
         if (ctcpIndex > 0 && line.endsWith(Ctcp)) {
             const QString request = line.mid(ctcpIndex + 1 + 1, line.length() - (ctcpIndex + 1 + 1) - 1);
 
             if (request.startsWith("ACTION", Qt::CaseInsensitive)) {
-                if (channels.contains(target)) {
-                    emit channels[target]->action(sender, request.mid(7));
+                if (channels.contains(targetLower)) {
+                    emit channels[targetLower]->action(sender, request.mid(7));
                 } else if (!isChannel(target)) {
                     emit action(sender, request.mid(7), us.nick);
                 }
@@ -318,7 +320,7 @@ void IrcClient::processServerLine(const QString &line)
                 }
             }
         } else if (isChannel(target)) {
-            emit channels[target]->channelMessage(sender, line.mid(line.indexOf(" :") + 2));
+            emit channels[targetLower]->channelMessage(sender, line.mid(line.indexOf(" :") + 2));
         } else if (!target.compare(us.nick, Qt::CaseInsensitive)) {
             emit privateMessage(sender, line.mid(line.indexOf(" :") + 2), us.nick);
         } else {
@@ -326,20 +328,20 @@ void IrcClient::processServerLine(const QString &line)
         }
     } else if (!command.compare("JOIN", Qt::CaseInsensitive)) {
         if (!sender.nick.compare(us.nick, Qt::CaseInsensitive)) {
-            channels[target] = new Channel(target);
-            emit join(*channels[target]);
+            channels[targetLower] = new Channel(target);
+            emit join(*channels[targetLower]);
         } else {
-            channels[target]->addUser(sender.nick);
+            channels[targetLower]->addUser(sender.nick);
         }
-        emit channels[target]->join(sender);
+        emit channels[targetLower]->join(sender);
     } else if (!command.compare("PART", Qt::CaseInsensitive)) {
         if (!sender.nick.compare(us.nick, Qt::CaseInsensitive)) {
-            emit part(*channels[target]);
-            emit channels[target]->part(sender);
-            delete channels.take(target);
+            emit part(*channels[targetLower]);
+            emit channels[targetLower]->part(sender);
+            delete channels.take(targetLower);
         } else {
-            emit channels[target]->part(sender);
-            channels[target]->removeUser(sender.nick);
+            emit channels[targetLower]->part(sender);
+            channels[targetLower]->removeUser(sender.nick);
         }
     } else if (!command.compare("NICK", Qt::CaseInsensitive)) {
         renameUser(sender, target);
@@ -354,7 +356,7 @@ void IrcClient::processServerLine(const QString &line)
             emit ctcpReply(target, sender, request.left(firstSpace), request.mid(firstSpace + 1));
         } else {
             if (isChannel(target)) {
-                emit channels[target]->notice(sender, line.mid(line.indexOf(" :") + 2));
+                emit channels[targetLower]->notice(sender, line.mid(line.indexOf(" :") + 2));
             } else {
                 emit notice(sender, line.mid(line.indexOf(" :") + 2));
             }
@@ -378,18 +380,18 @@ void IrcClient::processServerLine(const QString &line)
         processMode(target, sender, mode);
     } else if (!command.compare("KICK", Qt::CaseSensitive)) {
         const QString recipient = iterator.next();
-        emit channels[target]->kick(sender, line.mid(line.indexOf(" :") + 2), recipient);
+        emit channels[targetLower]->kick(sender, line.mid(line.indexOf(" :") + 2), recipient);
         if (!recipient.compare(us.nick, Qt::CaseInsensitive)) {
-            delete channels.take(target);
+            delete channels.take(targetLower);
         } else {
-            channels[target]->removeUser(recipient);
+            channels[targetLower]->removeUser(recipient);
         }
     }
     /*TODO: invite*/
     else if (!command.compare("TOPIC", Qt::CaseInsensitive)) {
         QString topicText = line.mid(line.indexOf(" :") + 2);
         QDateTime topicDate = QDateTime::currentDateTime();
-        Channel* channel = channels[target];
+        Channel* channel = channels[targetLower];
         emit channel->topicChanged(topicText, sender, topicDate);
         channel->setTopicText(topicText);
         channel->setTopicSetter(sender);
@@ -403,8 +405,10 @@ void IrcClient::processMode(const QString &target, const User &sender, const QSt
     const QString modes = iterator.next();
     const bool set = modes.at(0) == '+';
 
-    if (channels.contains(target)) {
-        Channel* channel = channels[target];
+    const QString targetLower = target.toLower();
+
+    if (channels.contains(targetLower)) {
+        Channel* channel = channels[targetLower];
 
         for (int i = 1; i < modes.size(); i ++) {
             const QChar modeChar = modes.at(i);
@@ -446,7 +450,7 @@ void IrcClient::processServerResponse(const QString &code, const QString &respon
         QStringListIterator iterator (response.split(' ', QString::SkipEmptyParts));
         iterator.next(); /* our nick */
         iterator.next(); /* have no idea what that character means. TODO: figure that out. */
-        QString channel = iterator.next();
+        QString channel = iterator.next().toLower();
         while (iterator.hasNext()) {
             QString prefixedNick = iterator.next();
             if (prefixedNick.at(0) == ':') {
@@ -464,8 +468,8 @@ void IrcClient::processServerResponse(const QString &code, const QString &respon
     } else if (code == "366") {
         QStringListIterator iterator (response.split(' ', QString::SkipEmptyParts));
         iterator.next(); /* our nick */
-        QString channelName = iterator.next();
-        emit channels[channelName]->nicksReady();
+        QString channel = iterator.next().toLower();
+        emit channels[channel]->nicksReady();
         return;
     } else if (code == "352") {
         QStringListIterator iterator (response.split(' ', QString::SkipEmptyParts));
