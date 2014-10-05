@@ -67,7 +67,7 @@ private:
     QHash<QString, ChannelPage*> channelPages;
     QHash<QString, PrivatePage*> privatePages;
 
-    PrivatePage* getPrivatePage(QString &pageName);
+    PrivatePage* getPrivatePage(const QString &pageName);
 
 private slots:
     void changeTopic(const QString& topicText);

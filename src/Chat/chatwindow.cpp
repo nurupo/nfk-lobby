@@ -227,7 +227,7 @@ void Window::switchToTab(QTreeWidgetItem* tab)
 
 void Window::startPrivate(const QString &nick)
 {
-    PrivatePage* privatePage = createPrivatePage(nick);
+    PrivatePage* privatePage = getPrivatePage(nick);
     switchToTab(privatePage->getTab());
 }
 
@@ -478,7 +478,7 @@ void Window::routePrivateAction(const IrcClient::User &sender, const QString &me
     getPrivatePage(pageName)->action(sender, message);
 }
 
-PrivatePage* Window::getPrivatePage(QString &pageName)
+PrivatePage* Window::getPrivatePage(const QString &pageName)
 {
     PrivatePage* privatePage;
     if (!privatePages.contains(pageName)) {
