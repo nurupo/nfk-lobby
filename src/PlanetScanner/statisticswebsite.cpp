@@ -93,7 +93,7 @@ void StatisticsWebSite::processPlayersInfo()
 }
 
 QUrl StatisticsWebSite::getProfileUrl(int playerId) {
-    return QUrl(QString("%1?/profile/%2").arg(baseUrl()).arg(playerId));
+    return QUrl(QString("%1profile/%2").arg(baseUrl()).arg(playerId));
 }
 
 QString StatisticsWebSite::baseUrl()
