@@ -432,7 +432,7 @@ void IrcClient::processMode(const QString &target, const User &sender, const QSt
     } else {
         if (set && mode.contains('i') && !setUs) {
             us.nick = target;
-            nickChange(target);
+            emit nickChange(target);
             callWho(target);
         }
         emit userModeChanged(target, sender, mode);
