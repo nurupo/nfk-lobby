@@ -2,35 +2,40 @@
 
 NFK Lobby is a lobby application for a video game called [Need For Kill](http://info.needforkill.ru/).
 
-It mainly of three major parts:
+It consists of three modules:
 
 ### Planet Scanner
 
-Displays list of current games.
+"Planet" is an online game registry server -- the server with which all created online games register, and which the players looking for online games query.
+
+The Planet Scanner module communicates with a Planet and displays a list of current games.
 
   * Works with several planets simultaneously
   * Filters output by gametype and fullness of a server
-  * Allowes to join a game as a player or a spectator
-  * Grabs player list from http://nfk.pro2d.ru/
-  * Automatically refreshes information
-     
+  * Allows to join a game as a player or a spectator in a few clicks
+  * Has integration with http://nfk.pro2d.ru/ 3rd party service
+    * For each game, it displays a list of players in the game by grabbing it from http://nfk.pro2d.ru/ (planet doesn't provide a player list information)
+    * Allows to open player's profile on http://nfk.pro2d.ru/
+  * Has option to periodically refresh the information
 
-![Planet Scaner Screenshot](http://i.imgur.com/ndKBFVe.png)
+
+![Planet Scanner Screenshot](http://i.imgur.com/ndKBFVe.png)
 <p align="center">Image is clickable</p>
 
 
 ### Chat
 
-Implementation of IRC client.
+From scratch implementation of a IRC client, automatically connecting to the game's channel on startup.
 
   * Identifies with NickServ
   * Automatically connects to a server on the startup
   * Automatically joins specified channels
-  * Waits specified time before automatically joining specified channels (useful when using cloak)
-  * Allows to use custom fonts
-  * Allows to add any servers with any supported encoding
+  * Allows to delay auto-joining channels for a specified period time (useful when using a cloak)
+  * Allows to configure fonts
+  * Allows to add any IRC servers
+  * Allows to use any character encoding supported by Qt
   * Uses [Quassel](http://quassel-irc.org/)-like message coloring
-     
+
 
 ![Chat Screenshot](http://i.imgur.com/ju1W8BC.png)
 <p align="center">Image is clickable</p>
@@ -38,11 +43,11 @@ Implementation of IRC client.
 
 ### Game Preferences
 
-Shares game preferences among players.
+A global board where players can share their game preferences.
 
-  * Allows players to share gametypes they want to play, instead of asking "who wants to play X?" every single time in the chat
-  * Fun fact: Built on top of IRC
-     
+  * Allows players to share gametypes they want to play, instead of asking "who wants to play X?" every few minutes in the chat
+  * Built on top of IRC, i.e. doesn't require any extra server
+
 
 ![Game Preferences Screenshot](http://i.imgur.com/1AKIDHZ.png)
 <p align="center">Image is clickable</p>
@@ -62,7 +67,7 @@ Here is an example of how that might be useful:
 
 ### Settings
 
-Want even more screenshots? Here is [a gallery of settings screenshots](http://imgur.com/a/iLY9N) just for you.
+Want to see even more screenshots? Here is [a gallery of settings screenshots](http://imgur.com/a/iLY9N).
 
 
 ## Contributing
